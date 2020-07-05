@@ -205,7 +205,7 @@ fun createTileCircle(qtype:Any?, radius:Any?) {
     return tiles;
 }
 
-fun addCurveClickHandler(curve) {
+fun addCurveClickHandler(curve:Any?) {
     curve.click(
             fun () {
                 if (jukeboxData.selectedCurve) {
@@ -230,7 +230,7 @@ fun addCurveClickHandler(curve) {
     );
 }
 
-fun highlightCurve(curve, enable, jump) {
+fun highlightCurve(curve:Any?, enable:Any?, jump:Any?) {
     if (curve) {
         if (enable) {
             var color = jump ? jumpHighlightColor : highlightColor;
@@ -248,7 +248,7 @@ fun highlightCurve(curve, enable, jump) {
     }
 }
 
-fun selectCurve(curve) {
+fun selectCurve(curve:Any?) {
     curve.attr('stroke-width', 6);
     curve.attr('stroke', selectColor);
     curve.attr('stroke-opacity', 1.0);
@@ -256,7 +256,7 @@ fun selectCurve(curve) {
 }
 
 
-fun extractTitle(url) {
+fun extractTitle(url:Any?) {
     var lastSlash = url.lastIndexOf('/');
     if (lastSlash >= 0 && lastSlash < url.length - 1) {
         var res = url.substring(lastSlash + 1, url.length - 4);
@@ -266,8 +266,8 @@ fun extractTitle(url) {
     }
 }
 
-fun getTitle(title, artist, url) {
-    if (title == undefined || title.length == 0 || title === '(unknown title)' || title == 'undefined') {
+fun getTitle(title:Any?, artist:Any?, url:Any?) {
+    if (title == undefined || title.length == 0 || title == '(unknown title)' || title == 'undefined') {
         if (url) {
             title = extractTitle(url);
         } else {
@@ -282,7 +282,7 @@ fun getTitle(title, artist, url) {
 }
 
 
-fun trackReady(t) {
+fun trackReady(t:Any?) {
     t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
     document.title = 'Eternal Jukebox for ' + t.fixedTitle;
     $("#song-title").text(t.fixedTitle);
@@ -291,7 +291,7 @@ fun trackReady(t) {
 }
 
 
-fun readyToPlay(t) {
+fun readyToPlay(t:Any?) {
     setDisplayMode(true);
     driver = Driver(player);
     info("Ready!");
@@ -312,19 +312,19 @@ fun drawVisualization() {
 }
 
 
-fun gotTheAnalysis(profile) {
+fun gotTheAnalysis(profile:Any?) {
     info("Loading track ...");
     remixer.remixTrack(profile, jukeboxData, fun (state, t, percent) {
         track = t;
         if (isNaN(percent)) {
             percent = 0;
         }
-        if (state === 1) {
+        if (state == 1) {
             info("Calculating pathways through the song ...");
             setTimeout(fun () {
                 readyToPlay(t);
             }, 10);
-        } else if (state === 0) {
+        } else if (state == 0) {
             if (percent >= 99) {
                 info("Calculating pathways through the song ...");
             } else {
@@ -342,7 +342,7 @@ fun gotTheAnalysis(profile) {
 }
 
 
-fun listSong(r) {
+fun listSong(r:Any?) {
     var title = getTitle(r.title, r.artist, null);
     var item = null;
     if (title) {
@@ -356,13 +356,13 @@ fun listSong(r) {
     return item;
 }
 
-fun listSongAsAnchor(r) {
+fun listSongAsAnchor(r:Any?) {
     var title = getTitle(r.title, r.artist, r.url);
     var item = $('<li>').html('<a href="index.html?id=' + r.id + '">' + title + '</a>');
     return item;
 }
 
-fun listTracks(active, tracks) {
+fun listTracks(active:Any?, tracks:Any?) {
     $('#song-div').show();
     $('#song-list').empty();
     $('.sel-list').removeClass('activated');
@@ -376,10 +376,10 @@ fun listTracks(active, tracks) {
     }
 }
 
-fun analyzeAudio(audio, tag, callback) {
+fun analyzeAudio(audio:Any?, tag:Any?, callback:Any?) {
     var url = 'qanalyze';
     $.getJSON(url, {url: audio, tag: tag}, fun (data) {
-        if (data.status === 'done' || data.status === 'error') {
+        if (data.status == 'done' || data.status == 'error') {
             callback(data);
         } else {
             info(data.status + ' - ready in about ' + data.estimated_wait + ' secs. ');
@@ -397,7 +397,7 @@ fun noCache() {
     return {"noCache": now()}
 }
 
-fun fetchAnalysis(id) {
+fun fetchAnalysis(id:Any?) {
     var url = '/api/analysis/analyse/' + id;
     info('Fetching the analysis');
 
@@ -420,7 +420,7 @@ fun fetchAnalysis(id) {
         type: "GET",
         crossDomain: true,
         success: fun (data) {
-        if(data["url"] === undefined) {
+        if(data["url"] == undefined) {
             $("#og-audio-source").remove();
         } else {
             jukeboxData.ogAudioURL = data["url"];
@@ -432,8 +432,8 @@ fun fetchAnalysis(id) {
     });
 }
 
-fun get_status(data) {
-    if (data.response.status.code === 0) {
+fun get_status(data:Any?) {
+    if (data.response.status.code == 0) {
         return data.response.track.status;
     } else {
         return 'error';
@@ -451,7 +451,7 @@ fun fetchSignature() {
     });
 }
 
-fun calculateDim(numTiles, totalWidth, totalHeight) {
+fun calculateDim(numTiles:Any?, totalWidth:Any?, totalHeight:Any?) {
     var area = totalWidth * totalHeight;
     var tArea = area / (1.2 * numTiles);
     var dim = Math.floor(Math.sqrt(tArea));
@@ -463,7 +463,7 @@ var timbreWeight = 1, pitchWeight = 10,
 loudStartWeight = 1, loudMaxWeight = 1,
 durationWeight = 100, confidenceWeight = 1;
 
-fun get_seg_distances(seg1, seg2) {
+fun get_seg_distances(seg1:Any?, seg2:Any?) {
     var timbre = seg_distance(seg1, seg2, 'timbre', true);
     var pitch = seg_distance(seg1, seg2, 'pitches');
     var sloudStart = Math.abs(seg1.loudness_start - seg2.loudness_start);
@@ -476,7 +476,7 @@ fun get_seg_distances(seg1, seg2) {
     return distance;
 }
 
-fun dynamicCalculateNearestNeighbors(type) {
+fun dynamicCalculateNearestNeighbors(type:Any?) {
     var count = 0;
     var targetBranchCount = track.analysis[type].length / 6;
 
@@ -493,7 +493,7 @@ fun dynamicCalculateNearestNeighbors(type) {
     return count;
 }
 
-fun postProcessNearestNeighbors(type) {
+fun postProcessNearestNeighbors(type:Any?) {
     removeDeletedEdges();
 
     if (jukeboxData.addLastEdge) {
@@ -543,7 +543,7 @@ fun getDeletedEdgeString() {
     }
 }
 
-fun calculateNearestNeighbors(type, threshold) {
+fun calculateNearestNeighbors(type:Any?, threshold:Any?) {
     precalculateNearestNeighbors(type, jukeboxData.maxBranches, jukeboxData.maxBranchThreshold);
     count = collectNearestNeighbors(type, threshold);
     postProcessNearestNeighbors(type, threshold);
@@ -651,7 +651,7 @@ fun now() {
 // avoid short branching songs like:
 // http://labs.echonest.com/Uploader/index.html?trid=TRVHPII13AFF43D495
 
-fun longestBackwardBranch(type) {
+fun longestBackwardBranch(type:Any?) {
     var longest = 0
     var quanta = track.analysis[type];
     for (i in 0 until quanta.length) {
@@ -669,7 +669,7 @@ fun longestBackwardBranch(type) {
     return lbb;
 }
 
-fun insertBestBackwardBranch(type, threshold, maxThreshold) {
+fun insertBestBackwardBranch(type:Any?, threshold:Any?, maxThreshold:Any?) {
     var found = false;
     var branches = mutableListOf<Any?>();
     var quanta = track.analysis[type];
@@ -693,7 +693,7 @@ fun insertBestBackwardBranch(type, threshold, maxThreshold) {
         }
     }
 
-    if (branches.length === 0) {
+    if (branches.length == 0) {
         return;
     }
 
@@ -715,7 +715,7 @@ fun insertBestBackwardBranch(type, threshold, maxThreshold) {
     }
 }
 
-fun calculateReachability(type) {
+fun calculateReachability(type:Any?) {
     var maxIter = 1000;
     var iter = 0;
     var quanta = track.analysis[type];
@@ -771,21 +771,21 @@ fun calculateReachability(type) {
     // console.log('reachability map converged after ' + iter + ' iterations. total ' + quanta.length);
 }
 
-fun map_percent_to_range(percent, min, max) {
+fun map_percent_to_range(percent:Any?, min:Any?, max:Any?) {
     percent = clamp(percent, 0, 100);
     return (max - min) * percent / 100. + min;
 }
 
-fun map_value_to_percent(value, min, max) {
+fun map_value_to_percent(value:Any?, min:Any?, max:Any?) {
     value = clamp(value, min, max);
     return 100 * (value - min) / (max - min);
 }
 
-fun clamp(val, min, max) {
-    return val < min ? min : val > max ? max : val;
+fun clamp(`val`:Any?, min:Any?, max:Any?) {
+    return `val` < min ? min : `val` > max ? max : `val`;
 }
 
-fun findBestLastBeat(type) {
+fun findBestLastBeat(type:Any?) {
     var reachThreshold = 50;
     var quanta = track.analysis[type];
     var longest = 0;
@@ -815,7 +815,7 @@ fun findBestLastBeat(type) {
     return longest
 }
 
-fun filterOutBadBranches(type, lastIndex) {
+fun filterOutBadBranches(type:Any?, lastIndex:Any?) {
     var quanta = track.analysis[type];
     for (i in 0 until lastIndex) {
         var q = quanta[i];
@@ -832,8 +832,8 @@ fun filterOutBadBranches(type, lastIndex) {
     }
 }
 
-fun hasSequentialBranch(q, neighbor) {
-    if (q.which === jukeboxData.lastBranchPoint) {
+fun hasSequentialBranch(q:Any?, neighbor:Any?) {
+    if (q.which == jukeboxData.lastBranchPoint) {
         return false;
     }
 
@@ -850,7 +850,7 @@ fun hasSequentialBranch(q, neighbor) {
     return false;
 }
 
-fun filterOutSequentialBranches(type) {
+fun filterOutSequentialBranches(type:Any?) {
     var quanta = track.analysis[type];
     for (var i = quanta.length - 1; i >= 1; i--) {
         var q = quanta[i];
@@ -868,12 +868,12 @@ fun filterOutSequentialBranches(type) {
     }
 }
 
-fun calculateNearestNeighborsForQuantum(type, maxNeighbors, maxThreshold, q1) {
+fun calculateNearestNeighborsForQuantum(type:Any?, maxNeighbors:Any?, maxThreshold:Any?, q1:Any?) {
     var edges = mutableListOf<Any?>();
     var id = 0;
     for (i in 0 until track.analysis[type].length) {
 
-        if (i === q1.which) {
+        if (i == q1.which) {
             continue;
         }
 
@@ -887,7 +887,7 @@ fun calculateNearestNeighborsForQuantum(type, maxNeighbors, maxThreshold, q1) {
                 // some segments can overlap many quantums,
                 // we don't want this self segue, so give them a
                 // high distance
-                if (seg1.which === seg2.which) {
+                if (seg1.which == seg2.which) {
                     distance = 100
                 } else {
                     distance = get_seg_distances(seg1, seg2);
@@ -933,7 +933,7 @@ fun calculateNearestNeighborsForQuantum(type, maxNeighbors, maxThreshold, q1) {
     }
 }
 
-fun precalculateNearestNeighbors(type, maxNeighbors, maxThreshold) {
+fun precalculateNearestNeighbors(type:Any?, maxNeighbors:Any?, maxThreshold:Any?) {
     // skip if this is already done
     if ('all_neighbors' in track.analysis[type][0]) {
         return;
@@ -945,7 +945,7 @@ fun precalculateNearestNeighbors(type, maxNeighbors, maxThreshold) {
     }
 }
 
-fun collectNearestNeighbors(type, maxThreshold) {
+fun collectNearestNeighbors(type:Any?, maxThreshold:Any?) {
     var branchingCount = 0;
     for (qi in 0 until track.analysis[type].length) {
         var q1 = track.analysis[type][qi];
@@ -957,7 +957,7 @@ fun collectNearestNeighbors(type, maxThreshold) {
     return branchingCount;
 }
 
-fun extractNearestNeighbors(q, maxThreshold) {
+fun extractNearestNeighbors(q:Any?, maxThreshold:Any?) {
     var neighbors = mutableListOf<Any?>();
 
     for (i in 0 until q.all_neighbors.length) {
@@ -983,7 +983,7 @@ fun extractNearestNeighbors(q, maxThreshold) {
     return neighbors;
 }
 
-fun seg_distance(seg1, seg2, field, weighted) {
+fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Any?) {
     if (weighted) {
         return weighted_euclidean_distance(seg1[field], seg2[field]);
     } else {
@@ -991,7 +991,7 @@ fun seg_distance(seg1, seg2, field, weighted) {
     }
 }
 
-fun calcBranchInfo(type) {
+fun calcBranchInfo(type:Any?) {
     var histogram = {}
     var total = 0;
     for (qi in 0 until track.analysis[type].length) {
@@ -1011,7 +1011,7 @@ fun calcBranchInfo(type) {
     console.log('total branches', total);
 }
 
-fun euclidean_distance(v1, v2) {
+fun euclidean_distance(v1:Any?, v2:Any?) {
     var sum = 0;
 
     for (i in 0 until v1.length) {
@@ -1021,7 +1021,7 @@ fun euclidean_distance(v1, v2) {
     return Math.sqrt(sum);
 }
 
-fun weighted_euclidean_distance(v1, v2) {
+fun weighted_euclidean_distance(v1:Any?, v2:Any?) {
     var sum = 0;
 
     //for (i in 0 until 4) {
@@ -1045,21 +1045,44 @@ fun redrawTiles() {
 }
 
 class tilePrototype {
+
+    constructor(which, q, height, width) {
+        var padding = 0;
+        var tile = tilePrototype();
+        tile.which = which;
+        tile.width = width;
+        tile.height = height;
+        tile.branchColor = getBranchColor(q);
+        tile.quantumColor = getQuantumColor(q);
+        tile.normalColor = tile.quantumColor;
+        tile.isPlaying = false;
+        tile.isScaled = false;
+        tile.playCount = 0;
+
+        tile.rect = paper.rect(0, 0, tile.width, tile.height);
+        tile.rect.attr("stroke", tile.normalColor);
+        tile.rect.attr('stroke-width', 0);
+        tile.q = q;
+        tile.init();
+        q.tile = tile;
+        tile.normal();
+        return tile;
+    }
     var normalColor = "#5f9"
 
-    fun move (x, y) {
+    fun move (x:Any?, y:Any?) {
         this.rect.attr({x: x, y: y});
         if (this.label) {
             this.label.attr({x: x + 2, y: y + 8});
         }
     }
 
-    fun rotate (angle) {
-        var dangle = 360 * (angle / (Math.PI * 2));
-        this.rect.transform('r' + dangle);
+    fun rotate (angleRadians:Double) {
+        val angleDegrees = 360 * (angleRadians / (Math.PI * 2));
+        this.rect.transform('r' + angleDegrees);
     }
 
-    fun play (force) {
+    fun play (force:Boolean) {
         if (force || shifted) {
             this.playStyle(true);
             player.play(0, this.q);
@@ -1088,7 +1111,7 @@ class tilePrototype {
         this.rect.attr("fill", "#F8F");
     }
 
-    fun playStyle (didJump) {
+    fun playStyle (didJump:Any?) {
         if (!this.isPlaying) {
             this.isPlaying = true;
             if (!this.isScaled) {
@@ -1158,7 +1181,7 @@ class tilePrototype {
     }
 }
 
-fun highlightCurves(tile, enable, didJump) {
+fun highlightCurves(tile:Any?, enable:Any?, didJump:Any?) {
     for (i in 0 until tile.q.neighbors.length) {
         var curve = tile.q.neighbors[i].curve;
         highlightCurve(curve, enable, didJump);
@@ -1168,7 +1191,7 @@ fun highlightCurves(tile, enable, didJump) {
     }
 }
 
-fun getQuantumColor(q) {
+fun getQuantumColor(q:Any?) {
     if (isSegment(q)) {
         return getSegmentColor(q);
     } else {
@@ -1181,16 +1204,16 @@ fun getQuantumColor(q) {
     }
 }
 
-fun getQuantumSegment(q) {
+fun getQuantumSegment(q:Any?) {
     return q.oseg;
 }
 
-fun isSegment(q) {
+fun isSegment(q:Any?) {
     return 'timbre' in q;
 }
 
-fun getBranchColor(q) {
-    if (q.neighbors.length === 0) {
+fun getBranchColor(q:Any?) {
+    if (q.neighbors.length == 0) {
         return to_rgb(0, 0, 0);
     } else {
         var red = q.neighbors.length / jukeboxData.maxBranches;
@@ -1198,37 +1221,16 @@ fun getBranchColor(q) {
     }
 }
 
-fun createNewTile(which, q, height, width) {
-    var padding = 0;
-    var tile = Object.create(tilePrototype);
-    tile.which = which;
-    tile.width = width;
-    tile.height = height;
-    tile.branchColor = getBranchColor(q);
-    tile.quantumColor = getQuantumColor(q);
-    tile.normalColor = tile.quantumColor;
-    tile.isPlaying = false;
-    tile.isScaled = false;
-    tile.playCount = 0;
+fun createNewTile(which:Any?, q:Any?, height:Any?, width:Any?):tilePrototype = return tilePrototype(which, q, height, width)
 
-    tile.rect = paper.rect(0, 0, tile.width, tile.height);
-    tile.rect.attr("stroke", tile.normalColor);
-    tile.rect.attr('stroke-width', 0);
-    tile.q = q;
-    tile.init();
-    q.tile = tile;
-    tile.normal();
-    return tile;
-}
-
-fun createTilePanel(which) {
+fun createTilePanel(which:Any?) {
     removeAllTiles();
     jukeboxData.tiles = createTiles(which);
 }
 
 fun normalizeColor() {
-    cmin = [100, 100, 100];
-    cmax = [-100, -100, -100];
+    cmin = listOf(100, 100, 100);
+    cmax = listOf(-100, -100, -100);
 
     var qlist = track.analysis.segments;
     for (i in 0 until qlist.length) {
@@ -1245,7 +1247,7 @@ fun normalizeColor() {
     }
 }
 
-fun getSegmentColor(seg) {
+fun getSegmentColor(seg:Any?) {
     var results = mutableListOf<Any?>();
     for (i in 0 until 3) {
         var t = seg.timbre[i + 1];
@@ -1257,10 +1259,10 @@ fun getSegmentColor(seg) {
     //return to_rgb(results[0], results[1], results[2]);
 }
 
-fun convert(value) {
+fun convert(value:Any?) {
     var integer = Math.round(value);
     var str = Number(integer).toString(16);
-    return str.length === 1 ? "0" + str : str;
+    return str.length == 1 ? "0" + str : str;
 };
 
 fun to_rgb(r:Float, g:Float, b:Float):String {
@@ -1274,7 +1276,7 @@ fun removeAllTiles() {
     jukeboxData.tiles = mutableListOf<Any?>();
 }
 
-fun deleteEdge(edge) {
+fun deleteEdge(edge:Any?) {
     if (!edge.deleted) {
         jukeboxData.deletedEdgeCount++;
         edge.deleted = true;
@@ -1284,7 +1286,7 @@ fun deleteEdge(edge) {
         }
         for (j in 0 until edge.src.neighbors.length) {
             var otherEdge = edge.src.neighbors[j];
-            if (edge === otherEdge) {
+            if (edge == otherEdge) {
                 edge.src.neighbors.splice(j, 1);
                 break;
             }
@@ -1292,18 +1294,18 @@ fun deleteEdge(edge) {
     }
 }
 
-fun keydown(evt) {
+fun keydown(evt:Any?) {
     if (!$("#hero").is(":visible") || $("#controls").is(":visible") || jukeboxData.disableKeys) {
         return;
     }
 
-    if (evt.which === 39) {  // right arrow
+    if (evt.which == 39) {  // right arrow
         var inc = driver.getIncr();
         driver.setIncr(inc + 1);
         evt.preventDefault();
     }
 
-    if (evt.which === 8 || evt.which === 46) {     // backspace / delete
+    if (evt.which == 8 || evt.which == 46) {     // backspace / delete
         evt.preventDefault();
         if (jukeboxData.selectedCurve) {
             deleteEdge(jukeboxData.selectedCurve.edge);
@@ -1312,28 +1314,28 @@ fun keydown(evt) {
         }
     }
 
-    if (evt.which === 37) {  // left arrow
+    if (evt.which == 37) {  // left arrow
         evt.preventDefault();
         var inc = driver.getIncr();
         driver.setIncr(inc - 1);
     }
 
-    if (evt.which === 38) {  // up arrow
+    if (evt.which == 38) {  // up arrow
         driver.setIncr(1);
         evt.preventDefault();
     }
 
-    if (evt.which === 40) {  // down arrow
+    if (evt.which == 40) {  // down arrow
         driver.setIncr(0);
         evt.preventDefault();
     }
 
 
-    if (evt.which === 17) {
+    if (evt.which == 17) {
         controlled = true;
     }
 
-    if (evt.which === 72) {
+    if (evt.which == 72) {
         jukeboxData.infiniteMode = !jukeboxData.infiniteMode;
         if (jukeboxData.infiniteMode) {
             info("Infinite Mode enabled");
@@ -1344,11 +1346,11 @@ fun keydown(evt) {
         }
     }
 
-    if (evt.which === 16) {
+    if (evt.which == 16) {
         shifted = true;
     }
 
-    if (evt.which === 32) {
+    if (evt.which == 32) {
         evt.preventDefault();
         if (driver.isRunning()) {
             driver.stop();
@@ -1361,11 +1363,11 @@ fun keydown(evt) {
 
 }
 
-fun isDigit(key) {
+fun isDigit(key:Any?) {
     return key >= 48 && key <= 57;
 }
 
-fun keyup(evt) {
+fun keyup(evt:Any?) {
     if (evt.which == 17) {
         controlled = false;
     }
@@ -1391,14 +1393,14 @@ fun searchForTrack() {
     }
 }
 
-fun getShareURL(callback) {
+fun getShareURL(callback:Any?) {
     var q = document.URL.split('?')[1];
 
     $.ajax({
         url: "/api/site/shrink",
         dataType: "json",
         type: "POST",
-        data: q === undefined ? "service=jukebox" : "service=jukebox&" + q,
+        data: q == undefined ? "service=jukebox" : "service=jukebox&" + q,
         success: fun (data) {
         return callback(data["id"]);
     },
@@ -1418,7 +1420,7 @@ fun checkIfStarred() {
             success: fun (data) {
             var stars = data["stars"];
             for (i in 0 until stars.length) {
-                if (stars[i] === id) {
+                if (stars[i] == id) {
                     $("#star").text("Unstar");
                     break;
                 }
@@ -1471,7 +1473,7 @@ fun init() {
 
     $("#search").click(searchForTrack);
     $("#search-text").keyup(fun (e) {
-        if (e.keyCode === 13) {
+        if (e.keyCode == 13) {
             searchForTrack();
         }
     });
@@ -1503,12 +1505,12 @@ fun init() {
                 getShareURL(fun (shortID) {
                     $.ajax({
                         url: "/api/profile/stars/" + shortID,
-                        type: $("#star").text() === "Star" ? "PUT" : "DELETE",
+                        type: $("#star").text() == "Star" ? "PUT" : "DELETE",
                         headers: {
                         "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                     },
                         success: fun (data) {
-                        if ($("#star").text() === "Star") {
+                        if ($("#star").text() == "Star") {
                         $("#info").text("Successfully starred!");
                         $("#star").text("Unstar");
                     } else {
@@ -1517,7 +1519,7 @@ fun init() {
                     }
                     },
                         error: fun (xhr, textStatus, error) {
-                        if (error === "Unauthorized")
+                        if (error == "Unauthorized")
                         $("#info").text("An error occurred while starring: You're not logged in!");
                         else
                         $("#info").text("An error occurred while starring: " + error + "!");
@@ -1680,7 +1682,7 @@ fun init() {
 
     $("#audio-url").keypress(fun (event) {
         var keycode = event.keyCode || event.which;
-        if (keycode === 13) {
+        if (keycode == 13) {
             jukeboxData.audioURL = event.target.value;
             setTunedURL();
             window.location.reload(true);
@@ -1863,7 +1865,7 @@ fun init() {
 
 
     var context = getAudioContext();
-    if (context === null) {
+    if (context == null) {
         error("Sorry, this app needs advanced web audio. Your browser doesn't"
                 + " support it. Try the latest version of Chrome, Firefox, or Safari");
 
@@ -1887,7 +1889,7 @@ fun getAudioContext() {
     return context;
 }
 
-fun Driver(player) {
+fun Driver(player:Any?) {
     var curTile = null;
     var curOp = null;
     var incr = 1;
@@ -1908,11 +1910,11 @@ fun Driver(player) {
         } else {
             var nextIndex;
             if (shifted) {
-                if (bounceSeed === null) {
+                if (bounceSeed == null) {
                     bounceSeed = curTile;
                     bounceCount = 0;
                 }
-                if (bounceCount++ % 2 === 1) {
+                if (bounceCount++ % 2 == 1) {
                     return selectNextNeighbor(bounceSeed);
                 } else {
                     return bounceSeed;
@@ -1941,7 +1943,7 @@ fun Driver(player) {
         }
     }
 
-    fun selectRandomNextTile(seed) {
+    fun selectRandomNextTile(seed:Any?) {
         if (seed.q.neighbors.length == 0) {
             return seed;
         } else if (shouldRandomBranch(seed.q)) {
@@ -1955,7 +1957,7 @@ fun Driver(player) {
         }
     }
 
-    fun selectRandomNextTileNew(seed) {
+    fun selectRandomNextTileNew(seed:Any?) {
         if (seed.q.neighbors.length == 0) {
             return seed;
         } else if (shouldRandomBranch(seed.q)) {
@@ -1976,7 +1978,7 @@ fun Driver(player) {
      * us to the least played tile in the future (we look
      * at lookAhead beats into the future
      */
-    fun findLeastPlayedNeighbor(seed, lookAhead) {
+    fun findLeastPlayedNeighbor(seed:Any?, lookAhead:Any?) {
         var nextTiles = mutableListOf<Any?>();
 
         if (seed.q.which != jukeboxData.lastBranchPoint) {
@@ -2011,7 +2013,7 @@ fun Driver(player) {
         }
     }
 
-    fun selectNextNeighbor(seed) {
+    fun selectNextNeighbor(seed:Any?) {
         if (seed.q.neighbors.length == 0) {
             return seed;
         } else {
@@ -2022,7 +2024,7 @@ fun Driver(player) {
         }
     }
 
-    fun shouldRandomBranch(q) {
+    fun shouldRandomBranch(q:Any?) {
         if (jukeboxData.infiniteMode) {
             if (q.which == jukeboxData.lastBranchPoint) {
                 return true;
@@ -2172,7 +2174,7 @@ fun Driver(player) {
     };
 }
 
-fun secondsToTime(secs) {
+fun secondsToTime(secs:Any?) {
     secs = Math.floor(secs);
     var hours = Math.floor(secs / 3600);
     secs -= hours * 3600;
@@ -2227,31 +2229,31 @@ fun processParams() {
             }
         }
         if ('lb' in params) {
-            if (params['lb'] === '0') {
+            if (params['lb'] == '0') {
                 jukeboxData.addLastEdge = true;
             }
         }
 
         if ('jb' in params) {
-            if (params['jb'] === '1') {
+            if (params['jb'] == '1') {
                 jukeboxData.justBackwards = true;
             }
         }
 
         if ('lg' in params) {
-            if (params['lg'] === '1') {
+            if (params['lg'] == '1') {
                 jukeboxData.justLongBranches = true;
             }
         }
 
         if ('sq' in params) {
-            if (params['sq'] === '0') {
+            if (params['sq'] == '0') {
                 jukeboxData.removeSequentialBranches = true;
             }
         }
 
         if ('nokeys' in params) {
-            if (params['nokeys'] === '1') {
+            if (params['nokeys'] == '1') {
                 jukeboxData.disableKeys = true
             }
         }
@@ -2259,7 +2261,7 @@ fun processParams() {
         if ('bp' in params) {
             var bp = params['bp'];
             var fields = bp.split(',');
-            if (fields.length === 3) {
+            if (fields.length == 3) {
                 var minRange = parseInt(fields[0]);
                 var maxRange = parseInt(fields[1]);
                 var delta = parseInt(fields[2]);
@@ -2280,7 +2282,7 @@ fun processParams() {
         $("#select-track").hide();
         analyzeAudio(url, 'tag',
                 fun (data) {
-                    if (data.status === 'done') {
+                    if (data.status == 'done') {
                         showPlotPage(data.id);
                     } else {
                         info("Trouble analyzing that track " + data.message);
@@ -2293,25 +2295,25 @@ fun processParams() {
     }
 }
 
-fun showPlotPage(id) {
+fun showPlotPage(id:Any?) {
     var url = location.protocol + "//" +
             location.host + location.pathname + "?id=" + id;
     location.href = url;
 }
 
-fun urldecode(str) {
+fun urldecode(str:Any?) {
     return decodeURIComponent((str + '').replace(/\+/g, '%20'));
 }
 
-fun endsWith(str, suffix) {
+fun endsWith(str:Any?, suffix:Any?) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
-fun isTuned(url) {
+fun isTuned(url:Any?) {
     return url.indexOf('&') > 0;
 }
 
-fun tweetSetup(t) {
+fun tweetSetup(t:Any?) {
     $(".twitter-share-button").remove();
     var tweet = $('<a>')
     .attr('href', "https://twitter.com/share")
@@ -2336,7 +2338,7 @@ fun tweetSetup(t) {
     }
 }
 
-fun ga_track(page, action, id) {
+fun ga_track(page:Any?, action:Any?, id:Any?) {
     _gaq.push(['_trackEvent', page, action, id]);
 }
 
