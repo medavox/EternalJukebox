@@ -4,12 +4,13 @@ package org.abimon.eternalJukebox
 // dash during Music Hack Day Boston 2012, and has
 // quite a bit of hackage of the bad kind in it.
 
-var remixer;
-var player;
-var driver;
-var track;
-var W = 900, H = 680;
-var paper;
+var remixer:Any? = null
+var player:Any? = null
+var driver:Any? = null
+var track:Any? = null
+var W = 900
+var H = 680
+var paper:Any? = null
 
 // configs for chances to branch
 var defaultMinRandomBranchChance = .18
@@ -89,13 +90,12 @@ if (typeof Object.create !== "fun") {
     };
 }
 
-
-fun info(s) {
+fun info(s:Any) {
     $("#info").text(s);
 }
 
 
-fun error(s) {
+fun error(s:Any) {
     if (s.length == 0) {
         $("#error").hide();
     } else {
@@ -136,7 +136,7 @@ fun createTiles(qtype:Any?) {
     return createTileCircle(qtype, 250);
 }
 
-fun createTileCircle(qtype:Any?, radius:Any?) {
+fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     var start = now();
     var y_padding = 90;
     var x_padding = 200;
@@ -167,7 +167,7 @@ fun createTileCircle(qtype:Any?, radius:Any?) {
         var x = x_padding + R + R * Math.cos(angle);
         tile.move(x, y);
         tile.rotate(angle);
-        tiles.push(tile);
+        tiles.add(tile);
         angle += alpha;
     }
 
@@ -256,7 +256,7 @@ fun selectCurve(curve:Any?) {
 }
 
 
-fun extractTitle(url:Any?) {
+fun extractTitle(url:String):String {
     var lastSlash = url.lastIndexOf('/');
     if (lastSlash >= 0 && lastSlash < url.length - 1) {
         var res = url.substring(lastSlash + 1, url.length - 4);
@@ -266,19 +266,20 @@ fun extractTitle(url:Any?) {
     }
 }
 
-fun getTitle(title:Any?, artist:Any?, url:Any?) {
-    if (title == undefined || title.length == 0 || title == "(unknown title)" || title == "undefined") {
-        if (url) {
-            title = extractTitle(url);
+fun getTitle(title:String, artist:Any?, url:String?):String? {
+    var workingTitle:String? = title
+    if (title == null || title.length == 0 || title == "(unknown title)" || title == "undefined") {
+        if (url != null) {
+            workingTitle = extractTitle(url);
         } else {
-            title = null;
+            workingTitle = null;
         }
     } else {
         if (artist !== "(unknown artist)") {
-            title = title + " by " + artist;
+            workingTitle = workingTitle + " by " + artist;
         }
     }
-    return title;
+    return workingTitle;
 }
 
 
@@ -301,7 +302,7 @@ fun readyToPlay(t:Any?) {
 }
 
 fun drawVisualization() {
-    if (track) {
+    if (track != null) {
         if (jukeboxData.currentThreshold == 0) {
             dynamicCalculateNearestNeighbors("beats");
         } else {
@@ -345,7 +346,7 @@ fun gotTheAnalysis(profile:Any?) {
 fun listSong(r:Any?) {
     var title = getTitle(r.title, r.artist, null);
     var item = null;
-    if (title) {
+    if (title != null) {
         var item = $("<li>").append(title);
 
         item.attr("class", "song-link");
@@ -370,7 +371,7 @@ fun listTracks(active:Any?, tracks:Any?) {
     for (i in 0 until tracks.length) {
         var s = tracks[i];
         var item = listSong(s);
-        if (item) {
+        if (item != null) {
             $("#song-list").append(listSong(s));
         }
     }
@@ -585,7 +586,7 @@ fun undeleteAllEdges() {
 }
 
 fun setTunedURL() {
-    if (track) {
+    if (track != null) {
         var edges = getDeletedEdgeString();
         var addBranchParams = false;
         var lb = "";
@@ -691,7 +692,7 @@ fun insertBestBackwardBranch(type:Any?, threshold:Any?, maxThreshold:Any?) {
             if (delta > 0 && thresh < maxThreshold) {
                 var percent = delta * 100 / quanta.length;
                 var edge = [percent, i, which, q, neighbor]
-                branches.push(edge);
+                branches.add(edge);
             }
         }
     }
@@ -711,7 +712,7 @@ fun insertBestBackwardBranch(type:Any?, threshold:Any?, maxThreshold:Any?) {
     var bestNeighbor = best[4];
     var bestThreshold = bestNeighbor.distance;
     if (bestThreshold > threshold) {
-        bestQ.neighbors.push(bestNeighbor);
+        bestQ.neighbors.add(bestNeighbor);
         // console.log('added bbb from', bestQ.which, 'to', bestNeighbor.dest.which, 'thresh', bestThreshold);
     } else {
         // console.log('bbb is already in from', bestQ.which, 'to', bestNeighbor.dest.which, 'thresh', bestThreshold);
@@ -728,9 +729,9 @@ fun calculateReachability(type:Any?) {
         q.reach = quanta.length - q.which;
     }
 
-    for (iter = 0; iter < maxIter; iter++) {
+    for (iter in 0 until maxIter) {
         var changeCount = 0;
-        for (qi = 0; qi < quanta.length; qi++) {
+        for (qi in 0 until quanta.length) {
         var q = quanta[qi];
         var changed = false;
 
@@ -818,7 +819,7 @@ fun findBestLastBeat(type:Any?) {
     return longest
 }
 
-fun filterOutBadBranches(type:Any?, lastIndex:Any?) {
+fun filterOutBadBranches(type:Any?, lastIndex:Int) {
     var quanta = track.analysis[type];
     for (i in 0 until lastIndex) {
         var q = quanta[i];
@@ -826,7 +827,7 @@ fun filterOutBadBranches(type:Any?, lastIndex:Any?) {
         for (j in 0 until q.neighbors.length) {
             var neighbor = q.neighbors[j];
             if (neighbor.dest.which < lastIndex) {
-                newList.push(neighbor);
+                newList.add(neighbor);
             } else {
                 // console.log('filtered out arc from', q.which, 'to', neighbor.dest.which);
             }
@@ -841,7 +842,7 @@ fun hasSequentialBranch(q:Any?, neighbor:Any?) {
     }
 
     var qp = q.prev;
-    if (qp) {
+    if (qp != null) {
         var distance = q.which - neighbor.dest.which;
         for (i in 0 until qp.neighbors.length) {
             var odistance = qp.which - qp.neighbors[i].dest.which;
@@ -864,7 +865,7 @@ fun filterOutSequentialBranches(type:Any?) {
             if (hasSequentialBranch(q, neighbor)) {
                 // skip it
             } else {
-                newList.push(neighbor);
+                newList.add(neighbor);
             }
         }
         q.neighbors = newList;
@@ -909,7 +910,7 @@ fun calculateNearestNeighborsForQuantum(type:Any?, maxNeighbors:Any?, maxThresho
                 curve: null,
                 deleted: false
             };
-            edges.push(edge);
+            edges.add(edge);
             id++;
         }
     }
@@ -929,10 +930,10 @@ fun calculateNearestNeighborsForQuantum(type:Any?, maxNeighbors:Any?, maxThresho
     q1.all_neighbors = mutableListOf<Any?>();
     for (i = 0; i < maxNeighbors && i < edges.length; i++) {
         var edge = edges[i];
-        q1.all_neighbors.push(edge);
+        q1.all_neighbors.add(edge);
 
         edge.id = jukeboxData.allEdges.length;
-        jukeboxData.allEdges.push(edge);
+        jukeboxData.allEdges.add(edge);
     }
 }
 
@@ -948,7 +949,7 @@ fun precalculateNearestNeighbors(type:Any?, maxNeighbors:Any?, maxThreshold:Any?
     }
 }
 
-fun collectNearestNeighbors(type:Any?, maxThreshold:Any?) {
+fun collectNearestNeighbors(type:Any?, maxThreshold:Any?):Int {
     var branchingCount = 0;
     for (qi in 0 until track.analysis[type].length) {
         var q1 = track.analysis[type][qi];
@@ -980,14 +981,14 @@ fun extractNearestNeighbors(q:Any?, maxThreshold:Any?) {
 
         var distance = neighbor.distance;
         if (distance <= maxThreshold) {
-            neighbors.push(neighbor);
+            neighbors.add(neighbor);
         }
     }
     return neighbors;
 }
 
 fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Any?) {
-    if (weighted) {
+    if (weighted != null) {
         return weighted_euclidean_distance(seg1[field], seg2[field]);
     } else {
         return euclidean_distance(seg1[field], seg2[field]);
@@ -1952,7 +1953,7 @@ fun Driver(player:Any?) {
         } else if (shouldRandomBranch(seed.q)) {
             var next = seed.q.neighbors.shift();
             jukeboxData.lastThreshold = next.distance;
-            seed.q.neighbors.push(next);
+            seed.q.neighbors.add(next);
             var tile = next.dest.tile;
             return tile;
         } else {
@@ -1985,12 +1986,12 @@ fun Driver(player:Any?) {
         var nextTiles = mutableListOf<Any?>();
 
         if (seed.q.which != jukeboxData.lastBranchPoint) {
-            nextTiles.push(seed);
+            nextTiles.add(seed);
         }
         seed.q.neighbors.forEach(
                 fun (edge, which) {
                     var tile = edge.dest.tile;
-                    nextTiles.push(tile);
+                    nextTiles.add(tile);
                 }
         );
 
@@ -2021,7 +2022,7 @@ fun Driver(player:Any?) {
             return seed;
         } else {
             var next = seed.q.neighbors.shift();
-            seed.q.neighbors.push(next);
+            seed.q.neighbors.add(next);
             var tile = next.dest.tile;
             return tile;
         }
@@ -2201,9 +2202,9 @@ fun windowHidden() {
 }
 
 fun processParams() {
-    var params = {};
+    var params = mutableMapOf<String, Any?>();
     var q = document.URL.split('?')[1];
-    if (q !== undefined) {
+    if (q != null) {
         q = q.split('&');
         for (i in 0 until q.length) {
             var pv = q[i].split('=');
@@ -2224,11 +2225,11 @@ fun processParams() {
         if ("audio" in params) {
             jukeboxData.audioURL = decodeURIComponent(params["audio"]);
         }
-        if ('d' in params) {
+        if ("d" in params) {
             var df = params['d'].split(',');
             for (i in 0 until df.length) {
                 var di = parseInt(df[i]);
-                jukeboxData.deletedEdges.push(di);
+                jukeboxData.deletedEdges.add(di);
             }
         }
         if ("lb" in params) {
@@ -2342,7 +2343,7 @@ fun tweetSetup(t:Any?) {
 }
 
 fun ga_track(page:Any?, action:Any?, id:Any?) {
-    _gaq.push(["_trackEvent", page, action, id]);
+    _gaq.add(["_trackEvent", page, action, id]);
 }
 
 window.onload = init;
