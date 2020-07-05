@@ -36,58 +36,46 @@ var growthPerPlay = 10;
 var curGrowFactor = 1;
 
 
-var jukeboxData = mapOf<String, Any?>(
-        "infiniteMode" to true,      // if true, allow branching
-        "maxBranches" to 4,        // max branches allowed per beat
-        "maxBranchThreshold" to 80, // max allowed distance threshold
+private var jukeboxData = object {
+    var infiniteMode = true      // if true, allow branching
+    var maxBranches = 4        // max branches allowed per beat
+    var maxBranchThreshold = 80 // max allowed distance threshold
 
-        "computedThreshold" to 0,   // computed best threshold
-        "currentThreshold" to 0,    // current in-use max threshold
-        "addLastEdge" to true,      // if true, optimize by adding a good last edge
-        "justBackwards" to false,   // if true, only add backward branches
-        "justLongBranches" to false,// if true, only add long branches
-        "removeSequentialBranches" to false,// if true, remove consecutive branches of the same distance
+    var computedThreshold = 0   // computed best threshold
+    var currentThreshold = 0    // current in-use max threshold
+    var addLastEdge = true      // if true, optimize by adding a good last edge
+    var justBackwards = false   // if true, only add backward branches
+    var justLongBranches = false// if true, only add long branches
+    var removeSequentialBranches = false// if true, remove consecutive branches of the same distance
 
-        "deletedEdgeCount" to 0,    // number of edges that have been deleted
+    var deletedEdgeCount = 0    // number of edges that have been deleted
 
-        "lastBranchPoint" to 0,    // last beat with a good branch
-        "longestReach" to 0,       // longest looping secstion
+    var lastBranchPoint = 0    // last beat with a good branch
+    var longestReach = 0       // longest looping secstion
 
-        "beatsPlayed" to 0,          // total number of beats played
-        "totalBeats" to 0,         // total number of beats in the song
-        "branchCount" to 0,         // total number of active branches
+    var beatsPlayed = 0          // total number of beats played
+    var totalBeats = 0         // total number of beats in the song
+    var branchCount = 0         // total number of active branches
 
-        "selectedTile" to null,    // current selected tile
-        "selectedCurve" to null,   // current selected branch
+    var selectedTile = null    // current selected tile
+    var selectedCurve = null   // current selected branch
 
-        "tiles" to mutableListOf<Any?>(),              // all of the tiles
-        "allEdges" to mutableListOf<Any?>(),           // all of the edges
-        "deletedEdges" to mutableListOf<Any?>(),       // edges that should be deleted
+    var tiles = mutableListOf<Any?>()              // all of the tiles
+    var allEdges = mutableListOf<Any?>()           // all of the edges
+    var deletedEdges = mutableListOf<Any?>()       // edges that should be deleted
 
-        "audioURL" to null,		// The URL to play audio from; null means default
-        "trackID" to null,
-        "ogAudioURL" to null,
+    var audioURL = null        // The URL to play audio from; null means default
+    var trackID = null
+    var ogAudioURL = null
 
-        "minRandomBranchChance" to 0,
-        "maxRandomBranchChance" to 0,
-        "randomBranchChanceDelta" to 0,
-        "curRandomBranchChance" to 0,
-        "lastThreshold" to 0,
+    var minRandomBranchChance = 0
+    var maxRandomBranchChance = 0
+    var randomBranchChanceDelta = 0
+    var curRandomBranchChance = 0
+    var lastThreshold = 0
 
-        "tuningOpen" to false,
-        "disableKeys" to false
-)
-
-
-// From Crockford, Douglas (2008-12-17). JavaScript: The Good Parts (Kindle Locations 734-736). Yahoo Press.
-
-if (typeof Object.create !== "fun") {
-    Object.create = fun (o) {
-        var F = fun () {
-        };
-        F.prototype = o;
-        return F();
-    };
+    var tuningOpen = false
+    var disableKeys = false
 }
 
 fun info(s:Any) {
