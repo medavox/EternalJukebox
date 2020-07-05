@@ -36,7 +36,7 @@ var growthPerPlay = 10;
 var curGrowFactor = 1;
 
 
-private var jukeboxData = object {
+evenprivate var jukeboxData = object {
     var infiniteMode = true      // if true, allow branching
     var maxBranches = 4        // max branches allowed per beat
     var maxBranchThreshold = 80 // max allowed distance threshold
@@ -78,7 +78,7 @@ private var jukeboxData = object {
         set(newValue) {
             $("#loop-length-percent").text(Math.round(newValue));
             var loopBeats = Math.round(newValue * totalBeats / 100);
-            $("#loop-length-beats").text(Math.round(loopBeats));
+            $("#loop-length-beats").text(loopBeats);
             $("#total-beats").text(totalBeats);
         }
 
@@ -188,9 +188,7 @@ fun stop() {
     player = remixer.getPlayer();
 }
 
-fun createTiles(qtype:Any?) {
-    return createTileCircle(qtype, 250);
-}
+fun createTiles(qtype:Any?) = createTileCircle(qtype, 250)
 
 fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     var start = now();
@@ -237,7 +235,7 @@ fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     var center = " S 450 350 ";
     var branchCount = 0;
     R -= roffset;
-    for (i in 0 until tiles.length) {
+    for (i in 0 until tiles.size) {
         var startAngle = alpha * i + angleOffset;
         var tile = tiles[i];
         var y1 = y_padding + R + R * Math.sin(startAngle) + yoffset;
@@ -1193,7 +1191,7 @@ fun to_rgb(r:Float, g:Float, b:Float):String {
 }
 
 fun removeAllTiles() {
-    for (i in 0 until jukeboxData.tiles.length) {
+    for (i in 0 until jukeboxData.tiles.size) {
         jukeboxData.tiles[i].rect.remove();
     }
     jukeboxData.tiles = mutableListOf<Any?>();
@@ -1827,14 +1825,11 @@ fun urldecode(str:Any?) {
     return decodeURIComponent((str + "").replace(/\+/g, "%20"));
 }
 
-fun endsWith(str:Any?, suffix:Any?) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
-}
-
 fun isTuned(url:Any?) {
     return url.indexOf('&') > 0;
 }
-
+//TODO: fix social media & analytics stuff later
+/*
 fun tweetSetup(t:Any?) {
     $(".twitter-share-button").remove();
     var tweet = $("<a>")
@@ -1862,6 +1857,6 @@ fun tweetSetup(t:Any?) {
 
 fun ga_track(page:Any?, action:Any?, id:Any?) {
     _gaq.add(["_trackEvent", page, action, id]);
-}
+}*/
 
 window.onload = init;
