@@ -43,19 +43,54 @@ private var jukeboxData = object {
 
     var computedThreshold = 0   // computed best threshold
     var currentThreshold = 0    // current in-use max threshold
+        set(newValue) {
+            $("#threshold").text(newValue);
+            $("#threshold-slider").slider("value", newValue);
+        }
     var addLastEdge = true      // if true, optimize by adding a good last edge
+        set(newValue) {
+            $("#last-branch").attr("checked", newValue);
+            setTunedURL();
+        }
     var justBackwards = false   // if true, only add backward branches
+        set(newValue) {
+            $("#reverse-branch").attr("checked", newValue);
+            setTunedURL();
+        }
     var justLongBranches = false// if true, only add long branches
+        set(newValue) {
+            $("#long-branch").attr("checked", newValue);
+            setTunedURL();
+        }
     var removeSequentialBranches = false// if true, remove consecutive branches of the same distance
+        set(newValue) {
+            $("#sequential-branch").attr("checked", newValue);
+            setTunedURL();
+        }
 
     var deletedEdgeCount = 0    // number of edges that have been deleted
+        set(newValue) {
+            $("#deleted-branches").text(newValue);
+        }
 
     var lastBranchPoint = 0    // last beat with a good branch
-    var longestReach = 0       // longest looping secstion
+    var longestReach = 0.0       // longest looping secstion
+        set(newValue) {
+            $("#loop-length-percent").text(Math.round(newValue));
+            var loopBeats = Math.round(newValue * totalBeats / 100);
+            $("#loop-length-beats").text(Math.round(loopBeats));
+            $("#total-beats").text(totalBeats);
+        }
 
     var beatsPlayed = 0          // total number of beats played
     var totalBeats = 0         // total number of beats in the song
+        set(newValue) {
+            $("#total-beats").text(newValue);
+        }
     var branchCount = 0         // total number of active branches
+        set(newValue) {
+            $("#branch-count").text(newValue);
+        }
 
     var selectedTile = null    // current selected tile
     var selectedCurve = null   // current selected branch
@@ -65,17 +100,50 @@ private var jukeboxData = object {
     var deletedEdges = mutableListOf<Any?>()       // edges that should be deleted
 
     var audioURL = null        // The URL to play audio from; null means default
+        set(newValue) {
+            $("#audio-url").val(decodeURIComponent(newValue));
+        }
     var trackID = null
     var ogAudioURL = null
 
-    var minRandomBranchChance = 0
-    var maxRandomBranchChance = 0
-    var randomBranchChanceDelta = 0
-    var curRandomBranchChance = 0
-    var lastThreshold = 0
+    var minRandomBranchChance = 0.0
+        set(newValue) {
+            $("#min-prob").text(Math.round(newValue * 100));
+            $("#probability-slider").slider("values",
+                    [newValue * 100, maxRandomBranchChance * 100]);
+            curRandomBranchChance = clamp(curRandomBranchChance,
+                    newValue, maxRandomBranchChance);
+        }
+    var maxRandomBranchChance = 0.0
+        set(newValue) {
+            $("#max-prob").text(Math.round(newValue * 100));
+            $("#probability-slider").slider("values",
+                    [minRandomBranchChance * 100, newValue * 100]);
+            curRandomBranchChance = clamp(curRandomBranchChance,
+                    minRandomBranchChance, newValue);
+        }
+    var randomBranchChanceDelta = 0.0
+        set(newValue) {
+            var `val` = Math.round(map_value_to_percent(newValue,
+                    minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
+            $("#ramp-speed").text(`val`);
+            $("#probabiltiy-ramp-slider").slider("value", `val`);
+        }
+    var curRandomBranchChance = 0.0
+        set(newValue) {
+            $("#branch-chance").text(Math.round(newValue * 100));
+        }
+    var lastThreshold = 0.0
+        set(newValue) {
+            $("#last-threshold").text(Math.round(newValue));
+        }
 
     var tuningOpen = false
     var disableKeys = false
+        set(newValue) {
+            $("#disable-keys").attr("checked", newValue);
+            setTunedURL();
+        }
 }
 
 fun info(s:Any) {
@@ -1597,122 +1665,6 @@ fun init() {
         //setVolume(ui.value / 100);
     }
     });
-
-    watch(jukeboxData, "addLastEdge",
-            fun () {
-                $("#last-branch").attr("checked", jukeboxData.addLastEdge);
-                setTunedURL();
-            }
-    );
-
-    watch(jukeboxData, "justBackwards",
-            fun () {
-                $("#reverse-branch").attr("checked", jukeboxData.justBackwards);
-                setTunedURL();
-            }
-    );
-
-    watch(jukeboxData, "justLongBranches",
-            fun () {
-                $("#long-branch").attr("checked", jukeboxData.justLongBranches);
-                setTunedURL();
-            }
-    );
-
-    watch(jukeboxData, "removeSequentialBranches",
-            fun () {
-                $("#sequential-branch").attr("checked", jukeboxData.removeSequentialBranches);
-                setTunedURL();
-            }
-    );
-
-    watch(jukeboxData, "currentThreshold",
-            fun () {
-                $("#threshold").text(jukeboxData.currentThreshold);
-                $("#threshold-slider").slider("value", jukeboxData.currentThreshold);
-            }
-    );
-
-    watch(jukeboxData, "lastThreshold",
-            fun () {
-                $("#last-threshold").text(Math.round(jukeboxData.lastThreshold));
-            }
-    );
-
-    watch(jukeboxData, "minRandomBranchChance",
-            fun () {
-                $("#min-prob").text(Math.round(jukeboxData.minRandomBranchChance * 100));
-                $("#probability-slider").slider("values",
-                        [jukeboxData.minRandomBranchChance * 100, jukeboxData.maxRandomBranchChance * 100]);
-                jukeboxData.curRandomBranchChance = clamp(jukeboxData.curRandomBranchChance,
-                        jukeboxData.minRandomBranchChance, jukeboxData.maxRandomBranchChance);
-            }
-    );
-
-    watch(jukeboxData, "maxRandomBranchChance",
-            fun () {
-                $("#max-prob").text(Math.round(jukeboxData.maxRandomBranchChance * 100));
-                $("#probability-slider").slider("values",
-                        [jukeboxData.minRandomBranchChance * 100, jukeboxData.maxRandomBranchChance * 100]);
-                jukeboxData.curRandomBranchChance = clamp(jukeboxData.curRandomBranchChance,
-                        jukeboxData.minRandomBranchChance, jukeboxData.maxRandomBranchChance);
-            }
-    );
-
-    watch(jukeboxData, "curRandomBranchChance",
-            fun () {
-                $("#branch-chance").text(Math.round(jukeboxData.curRandomBranchChance * 100));
-            }
-    );
-
-    watch(jukeboxData, "randomBranchChanceDelta",
-            fun () {
-                var val = Math.round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
-                        minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
-                $("#ramp-speed").text(val);
-                $("#probabiltiy-ramp-slider").slider("value", val);
-            }
-    );
-
-    watch(jukeboxData, "totalBeats",
-            fun () {
-                $("#total-beats").text(jukeboxData.totalBeats);
-            }
-    );
-
-    watch(jukeboxData, "branchCount",
-            fun () {
-                $("#branch-count").text(jukeboxData.branchCount);
-            }
-    );
-
-    watch(jukeboxData, "deletedEdgeCount",
-            fun () {
-                $("#deleted-branches").text(jukeboxData.deletedEdgeCount);
-            }
-    );
-
-    watch(jukeboxData, "longestReach",
-            fun () {
-                $("#loop-length-percent").text(Math.round(jukeboxData.longestReach));
-                var loopBeats = Math.round(jukeboxData.longestReach * jukeboxData.totalBeats / 100);
-                $("#loop-length-beats").text(Math.round(loopBeats));
-                $("#total-beats").text(jukeboxData.totalBeats);
-            }
-    );
-
-    watch(jukeboxData, "audioURL",
-            fun () {
-                $("#audio-url").val(decodeURIComponent(jukeboxData.audioURL));
-            }
-    );
-
-    watch(jukeboxData, "disableKeys",
-            fun () {
-                $("#disable-keys").attr("checked", jukeboxData.disableKeys);
-                setTunedURL();
-            }
-    );
 
     jukeboxData.minRandomBranchChance = defaultMinRandomBranchChance;
     jukeboxData.maxRandomBranchChance = defaultMaxRandomBranchChance;
