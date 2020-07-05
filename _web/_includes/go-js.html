@@ -1,3 +1,5 @@
+{% if page.app == 'jukebox' %}
+<script type="text/javascript">
     // This code will make you cry. It was written in a mad
     // dash during Music Hack Day Boston 2012, and has
     // quite a bit of hackage of the bad kind in it.
@@ -78,9 +80,9 @@
 
     // From Crockford, Douglas (2008-12-17). JavaScript: The Good Parts (Kindle Locations 734-736). Yahoo Press.
 
-    if (typeof Object.create !== 'fun') {
-        Object.create = fun (o) {
-            var F = fun () {
+    if (typeof Object.create !== 'function') {
+        Object.create = function (o) {
+            var F = function () {
             };
             F.prototype = o;
             return new F();
@@ -88,12 +90,12 @@
     }
 
 
-    fun info(s) {
+    function info(s) {
         $("#info").text(s);
     }
 
 
-    fun error(s) {
+    function error(s) {
         if (s.length == 0) {
             $("#error").hide();
         } else {
@@ -102,7 +104,7 @@
         }
     }
 
-    fun setDisplayMode(playMode) {
+    function setDisplayMode(playMode) {
         if (playMode) {
             $("#song-div").hide();
             $("#select-track").hide();
@@ -117,7 +119,7 @@
         info("");
     }
 
-    fun hideAll() {
+    function hideAll() {
         $("#song-div").hide();
         $("#select-track").hide();
         $("#running").hide();
@@ -125,16 +127,16 @@
     }
 
 
-    fun stop() {
+    function stop() {
         player.stop();
         player = remixer.getPlayer();
     }
 
-    fun createTiles(qtype) {
+    function createTiles(qtype) {
         return createTileCircle(qtype, 250);
     }
 
-    fun createTileCircle(qtype, radius) {
+    function createTileCircle(qtype, radius) {
         var start = now();
         var y_padding = 90;
         var x_padding = 200;
@@ -203,9 +205,9 @@
         return tiles;
     }
 
-    fun addCurveClickHandler(curve) {
+    function addCurveClickHandler(curve) {
         curve.click(
-            fun () {
+            function () {
                 if (jukeboxData.selectedCurve) {
                     highlightCurve(jukeboxData.selectedCurve, false, false);
                 }
@@ -214,13 +216,13 @@
             });
 
         curve.mouseover(
-            fun () {
+            function () {
                 highlightCurve(curve, true, false);
             }
         );
 
         curve.mouseout(
-            fun () {
+            function () {
                 if (curve != jukeboxData.selectedCurve) {
                     highlightCurve(curve, false, false);
                 }
@@ -228,7 +230,7 @@
         );
     }
 
-    fun highlightCurve(curve, enable, jump) {
+    function highlightCurve(curve, enable, jump) {
         if (curve) {
             if (enable) {
                 var color = jump ? jumpHighlightColor : highlightColor;
@@ -246,7 +248,7 @@
         }
     }
 
-    fun selectCurve(curve) {
+    function selectCurve(curve) {
         curve.attr('stroke-width', 6);
         curve.attr('stroke', selectColor);
         curve.attr('stroke-opacity', 1.0);
@@ -254,7 +256,7 @@
     }
 
 
-    fun extractTitle(url) {
+    function extractTitle(url) {
         var lastSlash = url.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < url.length - 1) {
             var res = url.substring(lastSlash + 1, url.length - 4);
@@ -264,7 +266,7 @@
         }
     }
 
-    fun getTitle(title, artist, url) {
+    function getTitle(title, artist, url) {
         if (title == undefined || title.length == 0 || title === '(unknown title)' || title == 'undefined') {
             if (url) {
                 title = extractTitle(url);
@@ -280,7 +282,7 @@
     }
 
 
-    fun trackReady(t) {
+    function trackReady(t) {
         t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
         document.title = 'Eternal Jukebox for ' + t.fixedTitle;
         $("#song-title").text(t.fixedTitle);
@@ -289,7 +291,7 @@
     }
 
 
-    fun readyToPlay(t) {
+    function readyToPlay(t) {
         setDisplayMode(true);
         driver = Driver(player);
         info("Ready!");
@@ -298,7 +300,7 @@
         drawVisualization();
     }
 
-    fun drawVisualization() {
+    function drawVisualization() {
         if (track) {
             if (jukeboxData.currentThreshold == 0) {
                 dynamicCalculateNearestNeighbors('beats');
@@ -310,16 +312,16 @@
     }
 
 
-    fun gotTheAnalysis(profile) {
+    function gotTheAnalysis(profile) {
         info("Loading track ...");
-        remixer.remixTrack(profile, jukeboxData, fun (state, t, percent) {
+        remixer.remixTrack(profile, jukeboxData, function (state, t, percent) {
             track = t;
             if (isNaN(percent)) {
                 percent = 0;
             }
             if (state === 1) {
                 info("Calculating pathways through the song ...");
-                setTimeout(fun () {
+                setTimeout(function () {
                     readyToPlay(t);
                 }, 10);
             } else if (state === 0) {
@@ -340,27 +342,27 @@
     }
 
 
-    fun listSong(r) {
+    function listSong(r) {
         var title = getTitle(r.title, r.artist, null);
         var item = null;
         if (title) {
             var item = $('<li>').append(title);
 
             item.attr('class', 'song-link');
-            item.click(fun () {
+            item.click(function () {
                 showPlotPage(r.id);
             });
         }
         return item;
     }
 
-    fun listSongAsAnchor(r) {
+    function listSongAsAnchor(r) {
         var title = getTitle(r.title, r.artist, r.url);
         var item = $('<li>').html('<a href="index.html?id=' + r.id + '">' + title + '</a>');
         return item;
     }
 
-    fun listTracks(active, tracks) {
+    function listTracks(active, tracks) {
         $('#song-div').show();
         $('#song-list').empty();
         $('.sel-list').removeClass('activated');
@@ -374,14 +376,14 @@
         }
     }
 
-    fun analyzeAudio(audio, tag, callback) {
+    function analyzeAudio(audio, tag, callback) {
         var url = 'qanalyze';
-        $.getJSON(url, {url: audio, tag: tag}, fun (data) {
+        $.getJSON(url, {url: audio, tag: tag}, function (data) {
             if (data.status === 'done' || data.status === 'error') {
                 callback(data);
             } else {
                 info(data.status + ' - ready in about ' + data.estimated_wait + ' secs. ');
-                setTimeout(fun () {
+                setTimeout(function () {
                     analyzeAudio(audio, tag, callback);
                 }, 5000);
             }
@@ -391,11 +393,11 @@
     // first see if it is in in S3 bucket, and if not, get the analysis from
     // the labs server
 
-    fun noCache() {
+    function noCache() {
         return {"noCache": now()}
     }
 
-    fun fetchAnalysis(id) {
+    function fetchAnalysis(id) {
         var url = '/api/analysis/analyse/' + id;
         info('Fetching the analysis');
 
@@ -404,10 +406,10 @@
             dataType: "json",
             type: "GET",
             crossDomain: true,
-            success: fun (data) {
+            success: function (data) {
                 gotTheAnalysis(data);
             },
-            error: fun(xhr, textStatus, error) {
+            error: function(xhr, textStatus, error) {
                 info("Sorry, can't find info for that track: " + error)
             }
         });
@@ -417,20 +419,20 @@
             dataType: "json",
             type: "GET",
             crossDomain: true,
-            success: fun (data) {
+            success: function (data) {
                 if(data["url"] === undefined) {
                     $("#og-audio-source").remove();
                 } else {
                     jukeboxData.ogAudioURL = data["url"];
                 }
             },
-            error: fun(xhr, textStatus, error) {
+            error: function(xhr, textStatus, error) {
                 info("Sorry, can't find info for that track: " + error)
             }
         });
     }
 
-    fun get_status(data) {
+    function get_status(data) {
         if (data.response.status.code === 0) {
             return data.response.track.status;
         } else {
@@ -438,9 +440,9 @@
         }
     }
 
-    fun fetchSignature() {
+    function fetchSignature() {
         var url = 'policy';
-        $.getJSON(url, {}, fun (data) {
+        $.getJSON(url, {}, function (data) {
             policy = data.policy;
             signature = data.signature;
             $('#f-policy').val(data.policy);
@@ -449,7 +451,7 @@
         });
     }
 
-    fun calculateDim(numTiles, totalWidth, totalHeight) {
+    function calculateDim(numTiles, totalWidth, totalHeight) {
         var area = totalWidth * totalHeight;
         var tArea = area / (1.2 * numTiles);
         var dim = Math.floor(Math.sqrt(tArea));
@@ -461,7 +463,7 @@
         loudStartWeight = 1, loudMaxWeight = 1,
         durationWeight = 100, confidenceWeight = 1;
 
-    fun get_seg_distances(seg1, seg2) {
+    function get_seg_distances(seg1, seg2) {
         var timbre = seg_distance(seg1, seg2, 'timbre', true);
         var pitch = seg_distance(seg1, seg2, 'pitches');
         var sloudStart = Math.abs(seg1.loudness_start - seg2.loudness_start);
@@ -474,7 +476,7 @@
         return distance;
     }
 
-    fun dynamicCalculateNearestNeighbors(type) {
+    function dynamicCalculateNearestNeighbors(type) {
         var count = 0;
         var targetBranchCount = track.analysis[type].length / 6;
 
@@ -491,7 +493,7 @@
         return count;
     }
 
-    fun postProcessNearestNeighbors(type) {
+    function postProcessNearestNeighbors(type) {
         removeDeletedEdges();
 
         if (jukeboxData.addLastEdge) {
@@ -510,7 +512,7 @@
         setTunedURL();
     }
 
-    fun removeDeletedEdges() {
+    function removeDeletedEdges() {
         for (var i = 0; i < jukeboxData.deletedEdges.length; i++) {
             var edgeID = jukeboxData.deletedEdges[i];
             if (edgeID in jukeboxData.allEdges) {
@@ -521,7 +523,7 @@
         jukeboxData.deletedEdges = [];
     }
 
-    fun getAllDeletedEdgeIDs() {
+    function getAllDeletedEdgeIDs() {
         var results = [];
         for (var i = 0; i < jukeboxData.allEdges.length; i++) {
             var edge = jukeboxData.allEdges[i];
@@ -532,7 +534,7 @@
         return results;
     }
 
-    fun getDeletedEdgeString() {
+    function getDeletedEdgeString() {
         var ids = getAllDeletedEdgeIDs();
         if (ids.length > 0) {
             return '&d=' + ids.join(',');
@@ -541,14 +543,14 @@
         }
     }
 
-    fun calculateNearestNeighbors(type, threshold) {
+    function calculateNearestNeighbors(type, threshold) {
         precalculateNearestNeighbors(type, jukeboxData.maxBranches, jukeboxData.maxBranchThreshold);
         count = collectNearestNeighbors(type, threshold);
         postProcessNearestNeighbors(type, threshold);
         return count;
     }
 
-    fun resetTuning() {
+    function resetTuning() {
         undeleteAllEdges();
 
         jukeboxData.addLastEdge = true;
@@ -569,7 +571,7 @@
         drawVisualization();
     }
 
-    fun undeleteAllEdges() {
+    function undeleteAllEdges() {
         jukeboxData.deletedEdgeCount = 0;
         for (var i = 0; i < jukeboxData.allEdges.length; i++) {
             var edge = jukeboxData.allEdges[i];
@@ -579,7 +581,7 @@
         }
     }
 
-    fun setTunedURL() {
+    function setTunedURL() {
         if (track) {
             var edges = getDeletedEdgeString();
             var addBranchParams = false;
@@ -639,7 +641,7 @@
         }
     }
 
-    fun now() {
+    function now() {
         return new Date().getTime();
     }
 
@@ -649,7 +651,7 @@
     // avoid short branching songs like:
     // http://labs.echonest.com/Uploader/index.html?trid=TRVHPII13AFF43D495
 
-    fun longestBackwardBranch(type) {
+    function longestBackwardBranch(type) {
         var longest = 0
         var quanta = track.analysis[type];
         for (var i = 0; i < quanta.length; i++) {
@@ -667,7 +669,7 @@
         return lbb;
     }
 
-    fun insertBestBackwardBranch(type, threshold, maxThreshold) {
+    function insertBestBackwardBranch(type, threshold, maxThreshold) {
         var found = false;
         var branches = [];
         var quanta = track.analysis[type];
@@ -696,7 +698,7 @@
         }
 
         branches.sort(
-            fun (a, b) {
+            function (a, b) {
                 return a[0] - b[0];
             }
         )
@@ -713,7 +715,7 @@
         }
     }
 
-    fun calculateReachability(type) {
+    function calculateReachability(type) {
         var maxIter = 1000;
         var iter = 0;
         var quanta = track.analysis[type];
@@ -769,21 +771,21 @@
         // console.log('reachability map converged after ' + iter + ' iterations. total ' + quanta.length);
     }
 
-    fun map_percent_to_range(percent, min, max) {
+    function map_percent_to_range(percent, min, max) {
         percent = clamp(percent, 0, 100);
         return (max - min) * percent / 100. + min;
     }
 
-    fun map_value_to_percent(value, min, max) {
+    function map_value_to_percent(value, min, max) {
         value = clamp(value, min, max);
         return 100 * (value - min) / (max - min);
     }
 
-    fun clamp(val, min, max) {
+    function clamp(val, min, max) {
         return val < min ? min : val > max ? max : val;
     }
 
-    fun findBestLastBeat(type) {
+    function findBestLastBeat(type) {
         var reachThreshold = 50;
         var quanta = track.analysis[type];
         var longest = 0;
@@ -813,7 +815,7 @@
         return longest
     }
 
-    fun filterOutBadBranches(type, lastIndex) {
+    function filterOutBadBranches(type, lastIndex) {
         var quanta = track.analysis[type];
         for (var i = 0; i < lastIndex; i++) {
             var q = quanta[i];
@@ -830,7 +832,7 @@
         }
     }
 
-    fun hasSequentialBranch(q, neighbor) {
+    function hasSequentialBranch(q, neighbor) {
         if (q.which === jukeboxData.lastBranchPoint) {
             return false;
         }
@@ -848,7 +850,7 @@
         return false;
     }
 
-    fun filterOutSequentialBranches(type) {
+    function filterOutSequentialBranches(type) {
         var quanta = track.analysis[type];
         for (var i = quanta.length - 1; i >= 1; i--) {
             var q = quanta[i];
@@ -866,7 +868,7 @@
         }
     }
 
-    fun calculateNearestNeighborsForQuantum(type, maxNeighbors, maxThreshold, q1) {
+    function calculateNearestNeighborsForQuantum(type, maxNeighbors, maxThreshold, q1) {
         var edges = [];
         var id = 0;
         for (var i = 0; i < track.analysis[type].length; i++) {
@@ -910,7 +912,7 @@
         }
 
         edges.sort(
-            fun (a, b) {
+            function (a, b) {
                 if (a.distance > b.distance) {
                     return 1;
                 } else if (b.distance > a.distance) {
@@ -931,7 +933,7 @@
         }
     }
 
-    fun precalculateNearestNeighbors(type, maxNeighbors, maxThreshold) {
+    function precalculateNearestNeighbors(type, maxNeighbors, maxThreshold) {
         // skip if this is already done
         if ('all_neighbors' in track.analysis[type][0]) {
             return;
@@ -943,7 +945,7 @@
         }
     }
 
-    fun collectNearestNeighbors(type, maxThreshold) {
+    function collectNearestNeighbors(type, maxThreshold) {
         var branchingCount = 0;
         for (var qi = 0; qi < track.analysis[type].length; qi++) {
             var q1 = track.analysis[type][qi];
@@ -955,7 +957,7 @@
         return branchingCount;
     }
 
-    fun extractNearestNeighbors(q, maxThreshold) {
+    function extractNearestNeighbors(q, maxThreshold) {
         var neighbors = [];
 
         for (var i = 0; i < q.all_neighbors.length; i++) {
@@ -981,7 +983,7 @@
         return neighbors;
     }
 
-    fun seg_distance(seg1, seg2, field, weighted) {
+    function seg_distance(seg1, seg2, field, weighted) {
         if (weighted) {
             return weighted_euclidean_distance(seg1[field], seg2[field]);
         } else {
@@ -989,7 +991,7 @@
         }
     }
 
-    fun calcBranchInfo(type) {
+    function calcBranchInfo(type) {
         var histogram = {}
         var total = 0;
         for (var qi = 0; qi < track.analysis[type].length; qi++) {
@@ -1009,7 +1011,7 @@
         console.log('total branches', total);
     }
 
-    fun euclidean_distance(v1, v2) {
+    function euclidean_distance(v1, v2) {
         var sum = 0;
 
         for (var i = 0; i < v1.length; i++) {
@@ -1019,7 +1021,7 @@
         return Math.sqrt(sum);
     }
 
-    fun weighted_euclidean_distance(v1, v2) {
+    function weighted_euclidean_distance(v1, v2) {
         var sum = 0;
 
         //for (var i = 0; i < 4; i++) {
@@ -1032,8 +1034,8 @@
         return Math.sqrt(sum);
     }
 
-    fun redrawTiles() {
-        _.each(jukeboxData.tiles, fun (tile) {
+    function redrawTiles() {
+        _.each(jukeboxData.tiles, function (tile) {
             var newWidth = Math.round((minTileWidth + tile.playCount * growthPerPlay) * curGrowFactor);
             if (newWidth < 1) {
                 newWidth = 1;
@@ -1045,19 +1047,19 @@
     var tilePrototype = {
         normalColor: "#5f9",
 
-        move: fun (x, y) {
+        move: function (x, y) {
             this.rect.attr({x: x, y: y});
             if (this.label) {
                 this.label.attr({x: x + 2, y: y + 8});
             }
         },
 
-        rotate: fun (angle) {
+        rotate: function (angle) {
             var dangle = 360 * (angle / (Math.PI * 2));
             this.rect.transform('r' + dangle);
         },
 
-        play: fun (force) {
+        play: function (force) {
             if (force || shifted) {
                 this.playStyle(true);
                 player.play(0, this.q);
@@ -1074,19 +1076,19 @@
         },
 
 
-        selectStyle: fun () {
+        selectStyle: function () {
             this.rect.attr("fill", "#C9a");
         },
 
-        queueStyle: fun () {
+        queueStyle: function () {
             this.rect.attr("fill", "#aFF");
         },
 
-        pauseStyle: fun () {
+        pauseStyle: function () {
             this.rect.attr("fill", "#F8F");
         },
 
-        playStyle: fun (didJump) {
+        playStyle: function (didJump) {
             if (!this.isPlaying) {
                 this.isPlaying = true;
                 if (!this.isScaled) {
@@ -1100,7 +1102,7 @@
         },
 
 
-        normal: fun () {
+        normal: function () {
             this.rect.attr("fill", this.normalColor);
             if (this.isScaled) {
                 this.isScaled = false;
@@ -1120,10 +1122,10 @@
             this.isPlaying = false;
         },
 
-        init: fun () {
+        init: function () {
             var that = this;
 
-            this.rect.mouseover(fun (event) {
+            this.rect.mouseover(function (event) {
                 that.playStyle(false);
                 if (debugMode) {
                     if (that.q.which > jukeboxData.lastBranchPoint) {
@@ -1138,12 +1140,12 @@
                 event.preventDefault();
             });
 
-            this.rect.mouseout(fun (event) {
+            this.rect.mouseout(function (event) {
                 that.normal();
                 event.preventDefault();
             });
 
-            this.rect.mousedown(fun (event) {
+            this.rect.mousedown(function (event) {
                 event.preventDefault();
                 driver.setNextTile(that);
                 if (!driver.isRunning()) {
@@ -1156,7 +1158,7 @@
         }
     };
 
-    fun highlightCurves(tile, enable, didJump) {
+    function highlightCurves(tile, enable, didJump) {
         for (var i = 0; i < tile.q.neighbors.length; i++) {
             var curve = tile.q.neighbors[i].curve;
             highlightCurve(curve, enable, didJump);
@@ -1166,7 +1168,7 @@
         }
     }
 
-    fun getQuantumColor(q) {
+    function getQuantumColor(q) {
         if (isSegment(q)) {
             return getSegmentColor(q);
         } else {
@@ -1179,15 +1181,15 @@
         }
     }
 
-    fun getQuantumSegment(q) {
+    function getQuantumSegment(q) {
         return q.oseg;
     }
 
-    fun isSegment(q) {
+    function isSegment(q) {
         return 'timbre' in q;
     }
 
-    fun getBranchColor(q) {
+    function getBranchColor(q) {
         if (q.neighbors.length === 0) {
             return to_rgb(0, 0, 0);
         } else {
@@ -1196,7 +1198,7 @@
         }
     }
 
-    fun createNewTile(which, q, height, width) {
+    function createNewTile(which, q, height, width) {
         var padding = 0;
         var tile = Object.create(tilePrototype);
         tile.which = which;
@@ -1219,12 +1221,12 @@
         return tile;
     }
 
-    fun createTilePanel(which) {
+    function createTilePanel(which) {
         removeAllTiles();
         jukeboxData.tiles = createTiles(which);
     }
 
-    fun normalizeColor() {
+    function normalizeColor() {
         cmin = [100, 100, 100];
         cmax = [-100, -100, -100];
 
@@ -1243,7 +1245,7 @@
         }
     }
 
-    fun getSegmentColor(seg) {
+    function getSegmentColor(seg) {
         var results = [];
         for (var i = 0; i < 3; i++) {
             var t = seg.timbre[i + 1];
@@ -1255,24 +1257,24 @@
         //return to_rgb(results[0], results[1], results[2]);
     }
 
-    fun convert(value) {
+    function convert(value) {
         var integer = Math.round(value);
         var str = Number(integer).toString(16);
         return str.length === 1 ? "0" + str : str;
     };
 
-    fun to_rgb(r, g, b) {
+    function to_rgb(r, g, b) {
         return "#" + convert(r * 255) + convert(g * 255) + convert(b * 255);
     }
 
-    fun removeAllTiles() {
+    function removeAllTiles() {
         for (var i = 0; i < jukeboxData.tiles.length; i++) {
             jukeboxData.tiles[i].rect.remove();
         }
         jukeboxData.tiles = [];
     }
 
-    fun deleteEdge(edge) {
+    function deleteEdge(edge) {
         if (!edge.deleted) {
             jukeboxData.deletedEdgeCount++;
             edge.deleted = true;
@@ -1290,7 +1292,7 @@
         }
     }
 
-    fun keydown(evt) {
+    function keydown(evt) {
         if (!$("#hero").is(":visible") || $("#controls").is(":visible") || jukeboxData.disableKeys) {
             return;
         }
@@ -1359,11 +1361,11 @@
 
     }
 
-    fun isDigit(key) {
+    function isDigit(key) {
         return key >= 48 && key <= 57;
     }
 
-    fun keyup(evt) {
+    function keyup(evt) {
         if (evt.which == 17) {
             controlled = false;
         }
@@ -1372,14 +1374,14 @@
         }
     }
 
-    fun searchForTrack() {
+    function searchForTrack() {
         console.log("search for a track");
         var q = $("#search-text").val();
         console.log(q);
 
         if (q.length > 0) {
             var url = 'search';
-            $.getJSON(url, {q: q, results: 30}, fun (data) {
+            $.getJSON(url, {q: q, results: 30}, function (data) {
                 console.log(data);
                 for (var i = 0; i < data.length; i++) {
                     data[i].id = data[i].id;
@@ -1389,7 +1391,7 @@
         }
     }
 
-    fun getShareURL(callback) {
+    function getShareURL(callback) {
         var q = document.URL.split('?')[1];
 
         $.ajax({
@@ -1397,23 +1399,23 @@
             dataType: "json",
             type: "POST",
             data: q === undefined ? "service=jukebox" : "service=jukebox&" + q,
-            success: fun (data) {
+            success: function (data) {
                 return callback(data["id"]);
             },
-            error: fun (xhr, textStatus, error) {
+            error: function (xhr, textStatus, error) {
                 console.log("Error: " + error);
                 return "NOT-VALID";
             }
         });
     }
 
-    fun checkIfStarred() {
-        getShareURL(fun (id) {
+    function checkIfStarred() {
+        getShareURL(function (id) {
             $.ajax({
                 url: "/api/profile/me",
                 dataType: "json",
                 type: "GET",
-                success: fun (data) {
+                success: function (data) {
                     var stars = data["stars"];
                     for (var i = 0; i < stars.length; i++) {
                         if (stars[i] === id) {
@@ -1422,15 +1424,15 @@
                         }
                     }
                 },
-                error: fun (xhr, textStatus, error) {
+                error: function (xhr, textStatus, error) {
                     console.log("Could not retrieve stars: " + error)
                 }
             });
         });
     }
 
-    fun init() {
-        document.ondblclick = fun DoubleClick(event) {
+    function init() {
+        document.ondblclick = function DoubleClick(event) {
             event.preventDefault();
             event.stopPropagation();
             return false;
@@ -1445,7 +1447,7 @@
 
 
         $("#load").click(
-            fun () {
+            function () {
                 ga_track('main', 'load', '');
                 if (!uploadingAllowed) {
                     alert("Sorry, uploading is temporarily disabled, while we are under heavy load");
@@ -1456,7 +1458,7 @@
         );
 
         $("#go").click(
-            fun () {
+            function () {
                 if (driver.isRunning()) {
                     driver.stop();
                     ga_track('main', 'stop', track.info.id);
@@ -1468,14 +1470,14 @@
         );
 
         $("#search").click(searchForTrack);
-        $("#search-text").keyup(fun (e) {
+        $("#search-text").keyup(function (e) {
             if (e.keyCode === 13) {
                 searchForTrack();
             }
         });
 
         $("#new").click(
-            fun () {
+            function () {
                 if (driver) {
                     driver.stop();
                 }
@@ -1485,7 +1487,7 @@
         );
 
         $("#tune").click(
-            fun () {
+            function () {
                 var controls = $("#controls");
                 if (jukeboxData.tuningOpen)
                     controls.dialog('close');
@@ -1497,15 +1499,15 @@
         );
 
         $("#star").click(
-            fun () {
-                getShareURL(fun (shortID) {
+            function () {
+                getShareURL(function (shortID) {
                     $.ajax({
                         url: "/api/profile/stars/" + shortID,
                         type: $("#star").text() === "Star" ? "PUT" : "DELETE",
                         headers: {
                             "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                         },
-                        success: fun (data) {
+                        success: function (data) {
                             if ($("#star").text() === "Star") {
                                 $("#info").text("Successfully starred!");
                                 $("#star").text("Unstar");
@@ -1514,7 +1516,7 @@
                                 $("#star").text("Star");
                             }
                         },
-                        error: fun (xhr, textStatus, error) {
+                        error: function (xhr, textStatus, error) {
                             if (error === "Unauthorized")
                                 $("#info").text("An error occurred while starring: You're not logged in!");
                             else
@@ -1526,21 +1528,21 @@
         );
 
         $("#short-url").click(
-            fun () {
-                getShareURL(fun (id) {
+            function () {
+                getShareURL(function (id) {
                     prompt("Copy the URL below and press 'Enter' to automatically close this prompt", window.location.origin + "/api/site/expand/" + id + "/redirect")
                 })
             }
         );
 
         $("#og-audio-source").click(
-            fun () {
+            function () {
                 location.href = jukeboxData.ogAudioURL;
             }
         );
 
         $("#canonize").click(
-            fun () {
+            function () {
                 location.href = document.URL.replace("jukebox_go", "canonizer_go");
             }
         );
@@ -1557,14 +1559,14 @@
         );
 
         $("#reset-edges").click(
-            fun () {
+            function () {
                 resetTuning();
                 ga_track('main', 'reset', '');
             }
         );
 
         $("#close-tune").click(
-            fun() {
+            function() {
                 var controls = $("#controls");
                 controls.dialog('close');
                 jukeboxData.tuningOpen = false;
@@ -1572,7 +1574,7 @@
         );
 
         $("#last-branch").change(
-            fun (event) {
+            function (event) {
                 if (event.originalEvent) {
                     jukeboxData.addLastEdge = $('#last-branch').is(':checked');
                     drawVisualization();
@@ -1581,7 +1583,7 @@
         );
 
         $("#reverse-branch").change(
-            fun (event) {
+            function (event) {
                 if (event.originalEvent) {
                     jukeboxData.justBackwards = $('#reverse-branch').is(':checked');
                     drawVisualization();
@@ -1590,7 +1592,7 @@
         );
 
         $("#long-branch").change(
-            fun (event) {
+            function (event) {
                 if (event.originalEvent) {
                     jukeboxData.justLongBranches = $('#long-branch').is(':checked');
                     drawVisualization();
@@ -1599,7 +1601,7 @@
         );
 
         $("#sequential-branch").change(
-            fun (event) {
+            function (event) {
                 if (event.originalEvent) {
                     jukeboxData.removeSequentialBranches = $('#sequential-branch').is(':checked');
                     drawVisualization();
@@ -1612,14 +1614,14 @@
                 min: 2,
                 step: 1,
                 value: 30,
-                change: fun (event, ui) {
+                change: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.currentThreshold = ui.value;
                         drawVisualization();
                     }
                 },
 
-                slide: fun (event, ui) {
+                slide: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.currentThreshold = ui.value;
                     }
@@ -1637,7 +1639,7 @@
                     Math.round(defaultMinRandomBranchChance * 100),
                     Math.round(defaultMaxRandomBranchChance * 100)
                 ],
-                change: fun (event, ui) {
+                change: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
                         jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
@@ -1645,7 +1647,7 @@
                     }
                 },
 
-                slide: fun (event, ui) {
+                slide: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
                         jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
@@ -1659,7 +1661,7 @@
                 min: 0,
                 step: 2,
                 value: 30,
-                change: fun (event, ui) {
+                change: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.randomBranchChanceDelta =
                             map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
@@ -1667,7 +1669,7 @@
                     }
                 },
 
-                slide: fun (event, ui) {
+                slide: function (event, ui) {
                     if (event.originalEvent) {
                         jukeboxData.randomBranchChanceDelta =
                             map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
@@ -1676,7 +1678,7 @@
             }
         );
 
-        $("#audio-url").keypress(fun (event) {
+        $("#audio-url").keypress(function (event) {
             var keycode = event.keyCode || event.which;
             if (keycode === 13) {
                 jukeboxData.audioURL = event.target.value;
@@ -1685,7 +1687,7 @@
             }
         });
 
-        $("#audio-upload").change(fun () {
+        $("#audio-upload").change(function () {
             $.ajax({
                 url: "/api/audio/upload",
                 type: "POST",
@@ -1695,9 +1697,9 @@
                 headers: {
                     "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                 },
-                xhr: fun () {
+                xhr: function () {
                     var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", fun (evt) {
+                    xhr.upload.addEventListener("progress", function (evt) {
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             percentComplete = percentComplete * 100;
@@ -1707,19 +1709,19 @@
                     }, false);
                     return xhr;
                 },
-                success: fun (data) {
+                success: function (data) {
                     jukeboxData.audioURL = 'upl:' + data["id"];
                     setTunedURL();
                     window.location.reload(true);
                 },
-                error: fun (xhr, textStatus, error) {
+                error: function (xhr, textStatus, error) {
                     console.log("Error upon attempting to upload: " + error);
                 }
             });
         });
 
         $("#disable-keys").change(
-            fun (event) {
+            function (event) {
                 if (event.originalEvent) {
                     jukeboxData.disableKeys = $('#disable-keys').is(':checked');
                     setTunedURL();
@@ -1732,7 +1734,7 @@
             max: 100,
             value: 50,
             range: "min",
-            slide: fun(event, ui) {
+            slide: function(event, ui) {
                 $("#volume").text(ui.value);
                 player.audioGain.gain.value = ui.value / 100;
                 //setVolume(ui.value / 100);
@@ -1740,48 +1742,48 @@
         });
 
         watch(jukeboxData, 'addLastEdge',
-            fun () {
+            function () {
                 $("#last-branch").attr('checked', jukeboxData.addLastEdge);
                 setTunedURL();
             }
         );
 
         watch(jukeboxData, 'justBackwards',
-            fun () {
+            function () {
                 $("#reverse-branch").attr('checked', jukeboxData.justBackwards);
                 setTunedURL();
             }
         );
 
         watch(jukeboxData, 'justLongBranches',
-            fun () {
+            function () {
                 $("#long-branch").attr('checked', jukeboxData.justLongBranches);
                 setTunedURL();
             }
         );
 
         watch(jukeboxData, 'removeSequentialBranches',
-            fun () {
+            function () {
                 $("#sequential-branch").attr('checked', jukeboxData.removeSequentialBranches);
                 setTunedURL();
             }
         );
 
         watch(jukeboxData, 'currentThreshold',
-            fun () {
+            function () {
                 $("#threshold").text(jukeboxData.currentThreshold);
                 $("#threshold-slider").slider("value", jukeboxData.currentThreshold);
             }
         );
 
         watch(jukeboxData, 'lastThreshold',
-            fun () {
+            function () {
                 $("#last-threshold").text(Math.round(jukeboxData.lastThreshold));
             }
         );
 
         watch(jukeboxData, 'minRandomBranchChance',
-            fun () {
+            function () {
                 $("#min-prob").text(Math.round(jukeboxData.minRandomBranchChance * 100));
                 $("#probability-slider").slider("values",
                     [jukeboxData.minRandomBranchChance * 100, jukeboxData.maxRandomBranchChance * 100]);
@@ -1791,7 +1793,7 @@
         );
 
         watch(jukeboxData, 'maxRandomBranchChance',
-            fun () {
+            function () {
                 $("#max-prob").text(Math.round(jukeboxData.maxRandomBranchChance * 100));
                 $("#probability-slider").slider("values",
                     [jukeboxData.minRandomBranchChance * 100, jukeboxData.maxRandomBranchChance * 100]);
@@ -1801,13 +1803,13 @@
         );
 
         watch(jukeboxData, 'curRandomBranchChance',
-            fun () {
+            function () {
                 $("#branch-chance").text(Math.round(jukeboxData.curRandomBranchChance * 100));
             }
         );
 
         watch(jukeboxData, 'randomBranchChanceDelta',
-            fun () {
+            function () {
                 var val = Math.round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
                     minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
                 $("#ramp-speed").text(val);
@@ -1816,25 +1818,25 @@
         );
 
         watch(jukeboxData, 'totalBeats',
-            fun () {
+            function () {
                 $("#total-beats").text(jukeboxData.totalBeats);
             }
         );
 
         watch(jukeboxData, 'branchCount',
-            fun () {
+            function () {
                 $("#branch-count").text(jukeboxData.branchCount);
             }
         );
 
         watch(jukeboxData, 'deletedEdgeCount',
-            fun () {
+            function () {
                 $("#deleted-branches").text(jukeboxData.deletedEdgeCount);
             }
         );
 
         watch(jukeboxData, 'longestReach',
-            fun () {
+            function () {
                 $("#loop-length-percent").text(Math.round(jukeboxData.longestReach));
                 var loopBeats = Math.round(jukeboxData.longestReach * jukeboxData.totalBeats / 100);
                 $("#loop-length-beats").text(Math.round(loopBeats));
@@ -1843,13 +1845,13 @@
         );
 
         watch(jukeboxData, 'audioURL',
-            fun () {
+            function () {
                 $("#audio-url").val(decodeURIComponent(jukeboxData.audioURL));
             }
         );
 
         watch(jukeboxData, 'disableKeys',
-            fun () {
+            function () {
                 $("#disable-keys").attr('checked', jukeboxData.disableKeys);
                 setTunedURL();
             }
@@ -1875,7 +1877,7 @@
         }
     }
 
-    fun getAudioContext() {
+    function getAudioContext() {
         var context = null;
         if (typeof AudioContext !== "undefined") {
             context = new AudioContext();
@@ -1885,7 +1887,7 @@
         return context;
     }
 
-    fun Driver(player) {
+    function Driver(player) {
         var curTile = null;
         var curOp = null;
         var incr = 1;
@@ -1900,7 +1902,7 @@
         // var playcountDiv = $("#playcount");
         var timeDiv = $("#time");
 
-        fun next() {
+        function next() {
             if (curTile == null || curTile == undefined) {
                 return jukeboxData.tiles[0];
             } else {
@@ -1939,7 +1941,7 @@
             }
         }
 
-        fun selectRandomNextTile(seed) {
+        function selectRandomNextTile(seed) {
             if (seed.q.neighbors.length == 0) {
                 return seed;
             } else if (shouldRandomBranch(seed.q)) {
@@ -1953,7 +1955,7 @@
             }
         }
 
-        fun selectRandomNextTileNew(seed) {
+        function selectRandomNextTileNew(seed) {
             if (seed.q.neighbors.length == 0) {
                 return seed;
             } else if (shouldRandomBranch(seed.q)) {
@@ -1974,14 +1976,14 @@
          * us to the least played tile in the future (we look
          * at lookAhead beats into the future
          */
-        fun findLeastPlayedNeighbor(seed, lookAhead) {
+        function findLeastPlayedNeighbor(seed, lookAhead) {
             var nextTiles = [];
 
             if (seed.q.which != jukeboxData.lastBranchPoint) {
                 nextTiles.push(seed);
             }
             seed.q.neighbors.forEach(
-                fun (edge, which) {
+                function (edge, which) {
                     var tile = edge.dest.tile;
                     nextTiles.push(tile);
                 }
@@ -1991,7 +1993,7 @@
 
             if (lookAhead == 0) {
                 var minTile = null;
-                nextTiles.forEach(fun (tile) {
+                nextTiles.forEach(function (tile) {
                     if (minTile == null || tile.playCount < minTile.playCount) {
                         minTile = tile;
                     }
@@ -1999,7 +2001,7 @@
                 return [minTile, minTile.playCount];
             } else {
                 var minTile = null;
-                nextTiles.forEach(fun (tile) {
+                nextTiles.forEach(function (tile) {
                     var futureTile = findLeastPlayedNeighbor(tile, lookAhead - 1);
                     if (minTile == null || futureTile[1] < minTile[1]) {
                         minTile = futureTile;
@@ -2009,7 +2011,7 @@
             }
         }
 
-        fun selectNextNeighbor(seed) {
+        function selectNextNeighbor(seed) {
             if (seed.q.neighbors.length == 0) {
                 return seed;
             } else {
@@ -2020,7 +2022,7 @@
             }
         }
 
-        fun shouldRandomBranch(q) {
+        function shouldRandomBranch(q) {
             if (jukeboxData.infiniteMode) {
                 if (q.which == jukeboxData.lastBranchPoint) {
                     return true;
@@ -2042,7 +2044,7 @@
             }
         }
 
-        fun updateStats() {
+        function updateStats() {
             beatDiv.text(jukeboxData.beatsPlayed);
             timeDiv.text(secondsToTime((now() - startTime) / 1000.));
             /*
@@ -2053,7 +2055,7 @@
         }
 
 
-        fun process() {
+        function process() {
             if (curTile !== null && curTile !== undefined) {
                 curTile.normal();
             }
@@ -2089,7 +2091,7 @@
                     curTile.playCount += 1;
 
                     var delta = nextTime - ctime;
-                    setTimeout(fun () {
+                    setTimeout(function () {
                         process();
                     }, 1000 * delta - 10);
 
@@ -2109,7 +2111,7 @@
             }
         }
 
-        fun resetPlayCounts() {
+        function resetPlayCounts() {
             for (var i = 0; i < jukeboxData.tiles.length; i++) {
                 jukeboxData.tiles[i].playCount = 0;
             }
@@ -2119,7 +2121,7 @@
 
         var startTime = 0;
         return {
-            start: fun () {
+            start: function () {
                 jukeboxData.beatsPlayed = 0;
                 nextTime = 0;
                 bounceSeed = null;
@@ -2135,7 +2137,7 @@
                 process();
             },
 
-            stop: fun () {
+            stop: function () {
                 var delta = now() - startTime;
                 $("#go").text('Play');
                 if (curTile) {
@@ -2148,29 +2150,29 @@
                 player.stop();
             },
 
-            isRunning: fun () {
+            isRunning: function () {
                 return curOp !== null;
             },
 
-            getIncr: fun () {
+            getIncr: function () {
                 return incr;
             },
 
-            getCurTile: fun () {
+            getCurTile: function () {
                 return curTile;
             },
 
-            setIncr: fun (inc) {
+            setIncr: function (inc) {
                 incr = inc;
             },
 
-            setNextTile: fun (tile) {
+            setNextTile: function (tile) {
                 nextTile = tile;
             }
         };
     }
 
-    fun secondsToTime(secs) {
+    function secondsToTime(secs) {
         secs = Math.floor(secs);
         var hours = Math.floor(secs / 3600);
         secs -= hours * 3600;
@@ -2189,11 +2191,11 @@
         return hours + ":" + mins + ":" + secs
     }
 
-    fun windowHidden() {
+    function windowHidden() {
         return document.webkitHidden;
     }
 
-    fun processParams() {
+    function processParams() {
         var params = {};
         var q = document.URL.split('?')[1];
         if (q !== undefined) {
@@ -2277,7 +2279,7 @@
             setDisplayMode(true);
             $("#select-track").hide();
                 analyzeAudio(url, 'tag',
-                fun (data) {
+                function (data) {
                     if (data.status === 'done') {
                         showPlotPage(data.id);
                     } else {
@@ -2291,25 +2293,25 @@
         }
     }
 
-    fun showPlotPage(id) {
+    function showPlotPage(id) {
         var url = location.protocol + "//" +
             location.host + location.pathname + "?id=" + id;
         location.href = url;
     }
 
-    fun urldecode(str) {
+    function urldecode(str) {
         return decodeURIComponent((str + '').replace(/\+/g, '%20'));
     }
 
-    fun endsWith(str, suffix) {
+    function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
-    fun isTuned(url) {
+    function isTuned(url) {
         return url.indexOf('&') > 0;
     }
 
-    fun tweetSetup(t) {
+    function tweetSetup(t) {
         $(".twitter-share-button").remove();
         var tweet = $('<a>')
             .attr('href', "https://twitter.com/share")
@@ -2334,7 +2336,7 @@
         }
     }
 
-    fun ga_track(page, action, id) {
+    function ga_track(page, action, id) {
         _gaq.push(['_trackEvent', page, action, id]);
     }
 
@@ -2371,20 +2373,20 @@
 
     // From Crockford, Douglas (2008-12-17). JavaScript: The Good Parts (Kindle Locations 734-736). Yahoo Press.
 
-    if (typeof Object.create !== 'fun') {
-        Object.create = fun (o) {
-            var F = fun () {
+    if (typeof Object.create !== 'function') {
+        Object.create = function (o) {
+            var F = function () {
             };
             F.prototype = o;
             return new F();
         };
     }
 
-    fun info(s) {
+    function info(s) {
         $("#info").text(s);
     }
 
-    fun error(s) {
+    function error(s) {
         if (s.length === 0) {
             $("#error").hide();
         } else {
@@ -2393,11 +2395,11 @@
         }
     }
 
-    fun stop() {
+    function stop() {
         // player.stop();
     }
 
-    fun extractTitle(url) {
+    function extractTitle(url) {
         var lastSlash = url.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < url.length - 1) {
             var res = url.substring(lastSlash + 1, url.length - 4);
@@ -2407,7 +2409,7 @@
         }
     }
 
-    fun getTitle(title, artist, url) {
+    function getTitle(title, artist, url) {
         if (title == undefined || title.length == 0 || title === '(unknown title)' || title == 'undefined') {
             if (url) {
                 title = extractTitle(url);
@@ -2422,27 +2424,27 @@
         return title;
     }
 
-    fun loadTrack(id) {
+    function loadTrack(id) {
         fetchAnalysis(id);
     }
 
-    fun showTrackTitle(t) {
+    function showTrackTitle(t) {
         info(t.info.title + ' by ' + t.info.artist);
     }
 
 
-    fun getFullTitle() {
+    function getFullTitle() {
         return curTrack.fixedTitle;
     }
 
 
-    fun trackReady(t) {
+    function trackReady(t) {
         t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
         document.title = t.fixedTitle;
         // $("#song-title").text(t.fixedTitle);
     }
 
-    fun readyToPlay(t) {
+    function readyToPlay(t) {
         if (t.status === 'ok') {
             curTrack = t;
             trackDuration = curTrack.audio_summary.duration;
@@ -2454,7 +2456,7 @@
     }
 
 
-    fun euclidean_distance(v1, v2) {
+    function euclidean_distance(v1, v2) {
         var sum = 0;
 
         for (var i = 0; i < v1.length; i++) {
@@ -2467,7 +2469,7 @@
     var noSims = 0;
     var yesSims = 0
 
-    fun calculateNearestNeighborsForQuantum(list, q1) {
+    function calculateNearestNeighborsForQuantum(list, q1) {
         var simBeat = null;
         var simDistance = 10000000;
 
@@ -2499,7 +2501,7 @@
     }
 
 
-    fun seg_distance(seg1, seg2, field) {
+    function seg_distance(seg1, seg2, field) {
         return euclidean_distance(seg1[field], seg2[field]);
     }
 
@@ -2507,7 +2509,7 @@
         loudStartWeight = 1, loudMaxWeight = 1,
         durationWeight = 100, confidenceWeight = 1;
 
-    fun get_seg_distances(seg1, seg2) {
+    function get_seg_distances(seg1, seg2) {
         var timbre = seg_distance(seg1, seg2, 'timbre');
         var pitch = seg_distance(seg1, seg2, 'pitches');
         var sloudStart = Math.abs(seg1.loudness_start - seg2.loudness_start);
@@ -2520,7 +2522,7 @@
         return distance;
     }
 
-    fun getSection(q) {
+    function getSection(q) {
         while (q.parent) {
             q = q.parent;
         }
@@ -2531,10 +2533,10 @@
         return sec;
     }
 
-    fun findMax(dict) {
+    function findMax(dict) {
         var max = -1000000;
         var maxKey = null;
-        _.each(dict, fun (val, key) {
+        _.each(dict, function (val, key) {
             if (val > max) {
                 max = val;
                 maxKey = key;
@@ -2543,11 +2545,11 @@
         return maxKey;
     }
 
-    fun foldBySection(qlist) {
+    function foldBySection(qlist) {
         var nSections = curTrack.analysis.sections.length;
         for (var section = 0; section < nSections; section++) {
             var counter = {};
-            _.each(qlist, fun (q) {
+            _.each(qlist, function (q) {
                 if (q.section == section) {
                     var delta = q.which - q.sim.which;
                     if (!(delta in counter)) {
@@ -2558,7 +2560,7 @@
             });
             var bestDelta = findMax(counter);
 
-            _.each(qlist, fun (q) {
+            _.each(qlist, function (q) {
                 if (q.section == section) {
                     var next = q.which - bestDelta;
                     if (next >= 0 && next < qlist.length) {
@@ -2572,7 +2574,7 @@
 
         }
 
-        _.each(qlist, fun (q) {
+        _.each(qlist, function (q) {
             if (q.prev && q.prev.other && q.prev.other.which + 1 != q.other.which) {
                 q.prev.otherGain = .5;
                 q.otherGain = .5;
@@ -2585,9 +2587,9 @@
         });
     }
 
-    fun allReady() {
+    function allReady() {
         masterQs = curTrack.analysis.beats;
-        _.each(masterQs, fun (q1) {
+        _.each(masterQs, function (q1) {
             q1.section = getSection(q1);
         });
 
@@ -2596,7 +2598,7 @@
         var lastBeat = masterQs[masterQs.length - 1];
         lastBeat.duration = trackDuration - lastBeat.start;
 
-        _.each(masterQs, fun (q1) {
+        _.each(masterQs, function (q1) {
             calculateNearestNeighborsForQuantum(masterQs, q1);
         });
 
@@ -2608,12 +2610,12 @@
         createTiles(masterQs);
     }
 
-    fun gotTheAnalysis(profile) {
+    function gotTheAnalysis(profile) {
         info("Loading track ...");
-        remixer.remixTrack(profile, canonizerData, fun (state, t, percent) {
+        remixer.remixTrack(profile, canonizerData, function (state, t, percent) {
             if (state === 1) {
                 info("Here we go ...");
-                setTimeout(fun () {
+                setTimeout(function () {
                     readyToPlay(t);
                 }, 10);
             } else if (state == 0) {
@@ -2631,7 +2633,7 @@
     }
 
 
-    fun fetchAnalysis(id) {
+    function fetchAnalysis(id) {
         var url = 'api/analysis/analyse/' + id;
         info('Fetching the analysis');
         $.ajax({
@@ -2639,10 +2641,10 @@
             dataType: "json",
             type: "GET",
             crossDomain: true,
-            success: fun (data) {
+            success: function (data) {
                 gotTheAnalysis(data);
             },
-            error: fun(xhr, textStatus, error) {
+            error: function(xhr, textStatus, error) {
                 info("Sorry, can't find info for that track: " + error)
             }
         });
@@ -2652,20 +2654,20 @@
             dataType: "json",
             type: "GET",
             crossDomain: true,
-            success: fun (data) {
+            success: function (data) {
                 if(data["url"] === undefined) {
                     $("#og-audio-source").remove();
                 } else {
                     canonizerData.ogAudioURL = data["url"];
                 }
             },
-            error: fun(xhr, textStatus, error) {
+            error: function(xhr, textStatus, error) {
                 info("Sorry, can't find info for that track: " + error)
             }
         });
     }
 
-    fun get_status(data) {
+    function get_status(data) {
         if (data.status.code === 0) {
             return data.track.status;
         } else {
@@ -2673,12 +2675,12 @@
         }
     }
 
-    fun isSegment(q) {
+    function isSegment(q) {
         return 'timbre' in q;
     }
 
 
-    fun keydown(evt) {
+    function keydown(evt) {
         console.log('keydown', evt.which);
         if (evt.which === 32) {
             if (driver.isRunning()) {
@@ -2690,11 +2692,11 @@
         }
     }
 
-    fun urldecode(str) {
+    function urldecode(str) {
         return decodeURIComponent((str + '').replace(/\+/g, '%20'));
     }
 
-    fun getAudioContext() {
+    function getAudioContext() {
         if (window.webkitAudioContext) {
             return new webkitAudioContext();
         } else {
@@ -2702,10 +2704,10 @@
         }
     }
 
-    fun setDisplayMode() {
+    function setDisplayMode() {
     }
 
-    fun getShareURL(callback) {
+    function getShareURL(callback) {
         var q = document.URL.split('?')[1];
 
         $.ajax({
@@ -2713,23 +2715,23 @@
             dataType: "json",
             type: "POST",
             data: q === undefined ? "service=canonizer" : "service=canonizer&" + q,
-            success: fun (data) {
+            success: function (data) {
                 return callback(data["id"]);
             },
-            error: fun (xhr, textStatus, error) {
+            error: function (xhr, textStatus, error) {
                 console.log("Error: " + error);
                 return "NOT-VALID";
             }
         });
     }
 
-    fun checkIfStarred() {
-        getShareURL(fun (id) {
+    function checkIfStarred() {
+        getShareURL(function (id) {
             $.ajax({
                 url: "/api/profile/me",
                 dataType: "json",
                 type: "GET",
-                success: fun (data) {
+                success: function (data) {
                     var stars = data["stars"];
                     for (var i = 0; i < stars.length; i++) {
                         if (stars[i] === id) {
@@ -2738,18 +2740,18 @@
                         }
                     }
                 },
-                error: fun (xhr, textStatus, error) {
+                error: function (xhr, textStatus, error) {
                     console.log("Error: " + error)
                 }
             });
         });
     }
 
-    fun init() {
+    function init() {
         jQuery.ajaxSettings.traditional = true;
         setDisplayMode(false);
 
-        document.ondblclick = fun DoubleClick(event) {
+        document.ondblclick = function DoubleClick(event) {
             event.preventDefault();
             event.stopPropagation();
             return false;
@@ -2758,7 +2760,7 @@
         $("#error").hide();
 
         $("#go").click(
-            fun () {
+            function () {
                 if (driver.isRunning()) {
                     driver.stop();
                 } else {
@@ -2768,15 +2770,15 @@
         );
 
         $("#star").click(
-            fun () {
-                getShareURL(fun (shortID) {
+            function () {
+                getShareURL(function (shortID) {
                     $.ajax({
                         url: "api/profile/stars/" + shortID,
                         type: $("#star").text() === "Star" ? "PUT" : "DELETE",
                         headers: {
                             "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                         },
-                        success: fun (data) {
+                        success: function (data) {
                             if ($("#star").text() === "Star") {
                                 $("#info").text("Successfully starred!");
                                 $("#star").text("Unstar");
@@ -2785,7 +2787,7 @@
                                 $("#star").text("Star");
                             }
                         },
-                        error: fun (xhr, textStatus, error) {
+                        error: function (xhr, textStatus, error) {
                             if (error === "Unauthorized")
                                 $("#info").text("An error occurred while starring: You're not logged in!");
                             else
@@ -2797,15 +2799,15 @@
         );
 
         $("#short-url").click(
-            fun () {
-                getShareURL(fun (id) {
+            function () {
+                getShareURL(function (id) {
                     prompt("Copy the URL below and press 'Enter' to automatically close this prompt", window.location.origin + "/api/site/expand/" + id + "/redirect")
                 })
             }
         );
 
         $("#tune").click(
-            fun () {
+            function () {
                 var controls = $("#controls");
                 if (canonizerData.tuningOpen)
                     controls.dialog('close');
@@ -2826,7 +2828,7 @@
             }
         );
 
-        $("#audio-url").keypress(fun (event) {
+        $("#audio-url").keypress(function (event) {
             var keycode = event.keyCode || event.which;
             console.log(keycode);
             if (keycode == '13') {
@@ -2837,7 +2839,7 @@
             }
         });
 
-        $("#audio-upload").change(fun () {
+        $("#audio-upload").change(function () {
             $.ajax({
                 url: "upload/song",
                 type: "POST",
@@ -2847,25 +2849,25 @@
                 headers: {
                     "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                 },
-                success: fun (data) {
+                success: function (data) {
                     jukeboxData.audioURL = 'upl:' + data["id"];
                     setTunedURL();
                     window.location.reload(true);
                 },
-                error: fun (xhr, textStatus, error) {
+                error: function (xhr, textStatus, error) {
                     console.log("Error: " + error);
                 }
             });
         });
 
         $("#og-audio-source").click(
-            fun () {
+            function () {
                 location.href = canonizerData.ogAudioURL;
             }
         );
 
         $("#jukebox").click(
-            fun () {
+            function () {
                 location.href = document.URL.replace("canonizer_go", "jukebox_go");
             }
         );
@@ -2874,7 +2876,7 @@
         paper = Raphael("tiles", W, TH);
         $(document).keydown(keydown);
         $("#jukebox").click(
-            fun () {
+            function () {
                 history.replaceState({}, document.title, document.URL.replace("canonizer_go", "jukebox_go"));
                 window.location.reload()
             }
@@ -2900,13 +2902,13 @@
     }
 
 
-    fun showPlotPage(id) {
+    function showPlotPage(id) {
         var url = location.protocol + "//" +
             location.host + location.pathname + "?id=" + id;
         location.href = url;
     }
 
-    fun setURL() {
+    function setURL() {
         if (curTrack) {
             var p = '?id=' + curTrack.info.id;
             if (canonizerData.audioURL !== null) {
@@ -2917,7 +2919,7 @@
         tweetSetup(curTrack);
     }
 
-    fun tweetSetup(t) {
+    function tweetSetup(t) {
         $(".twitter-share-button").remove();
         var tweet = $('<a>')
             .attr('href', "https://twitter.com/share")
@@ -2938,12 +2940,12 @@
         }
     }
 
-    fun setSpeedFactor(factor) {
+    function setSpeedFactor(factor) {
         master.player.setSpeedFactor(factor);
         $("#speed").text(Math.round(factor * 100));
     }
 
-    fun processParams() {
+    function processParams() {
         var params = {};
         var q = document.URL.split('?')[1];
         if (q !== undefined) {
@@ -2971,13 +2973,13 @@
     var tilePrototype = {
         normalColor: "#5f9",
 
-        move: fun (x, y) {
+        move: function (x, y) {
             this.rect.attr({x: x, y: y});
             this.x = x;
             this.y = y;
         },
 
-        play: fun (force) {
+        play: function (force) {
             if (force || shifted) {
                 this.playStyle();
                 player.play(this.q);
@@ -2993,50 +2995,50 @@
         },
 
 
-        pos: fun () {
+        pos: function () {
             return {
                 x: this.x,
                 y: this.y
             }
         },
 
-        selectStyle: fun () {
+        selectStyle: function () {
             this.rect.attr("fill", "#C9a");
         },
 
-        queueStyle: fun () {
+        queueStyle: function () {
             this.rect.attr("fill", "#aFF");
         },
 
-        playStyle: fun () {
+        playStyle: function () {
             this.rect.attr("fill", "#FF9");
         },
 
-        normal: fun () {
+        normal: function () {
             this.rect.attr("fill", this.normalColor);
             this.rect.attr("stroke", this.normalColor);
         },
 
-        highlight: fun () {
+        highlight: function () {
             this.rect.attr("fill", masterColor);
             this.rect.attr("stroke", masterColor);
         },
 
-        highlight2: fun () {
+        highlight2: function () {
             this.rect.attr("fill", otherColor);
             this.rect.attr("stroke", otherColor);
         },
 
-        unplay: fun () {
+        unplay: function () {
             this.normal();
             if (shifted) {
                 player.stop(this.q);
             }
         },
 
-        init: fun () {
+        init: function () {
             var that = this;
-            this.rect.mousedown(fun (event) {
+            this.rect.mousedown(function (event) {
                 event.preventDefault();
                 driver.setNextQ(that.q);
                 if (!driver.isRunning()) {
@@ -3047,7 +3049,7 @@
     }
 
 
-    fun normalizeColor() {
+    function normalizeColor() {
 
         var qlist = curTrack.analysis.segments;
         for (var i = 0; i < qlist.length; i++) {
@@ -3064,7 +3066,7 @@
         }
     }
 
-    fun getColor(seg) {
+    function getColor(seg) {
         var results = []
         for (var i = 0; i < 3; i++) {
             var t = seg.timbre[i];
@@ -3074,17 +3076,17 @@
         return to_rgb(results[2], results[1], results[0]);
     }
 
-    fun convert(value) {
+    function convert(value) {
         var integer = Math.round(value);
         var str = Number(integer).toString(16);
         return str.length == 1 ? "0" + str : str;
     };
 
-    fun to_rgb(r, g, b) {
+    function to_rgb(r, g, b) {
         return "#" + convert(r) + convert(g) + convert(b);
     }
 
-    fun getQuantumColor(q) {
+    function getQuantumColor(q) {
         if (isSegment(q)) {
             return getSegmentColor(q);
         } else {
@@ -3097,7 +3099,7 @@
         }
     }
 
-    fun getQuantumSegment(q) {
+    function getQuantumSegment(q) {
         if (q.oseg) {
             return q.oseg;
         } else {
@@ -3105,7 +3107,7 @@
         }
     }
 
-    fun getQuantumSegmentOld(q) {
+    function getQuantumSegmentOld(q) {
         while (!isSegment(q)) {
             if ('children' in q && q.children.length > 0) {
                 q = q.children[0]
@@ -3122,21 +3124,21 @@
     }
 
 
-    fun isSegment(q) {
+    function isSegment(q) {
         return 'timbre' in q;
     }
 
-    fun getSegmentColor(seg) {
+    function getSegmentColor(seg) {
         return getColor(seg);
     }
 
-    fun resetTileColors(qlist) {
-        _.each(qlist, fun (q) {
+    function resetTileColors(qlist) {
+        _.each(qlist, function (q) {
             q.tile.normal();
         });
     }
 
-    fun createTile(which, q, x, y, width, height) {
+    function createTile(which, q, x, y, width, height) {
         var tile = Object.create(tilePrototype);
         tile.which = which;
         tile.width = width;
@@ -3154,7 +3156,7 @@
     var vPad = 20;
     var hPad = 20;
 
-    fun createTiles(qlist) {
+    function createTiles(qlist) {
         normalizeColor();
         var GH = H - vPad * 2;
         var HB = H - vPad;
@@ -3173,9 +3175,9 @@
         return tiles;
     }
 
-    fun drawConnections(qlist) {
+    function drawConnections(qlist) {
         var maxDelta = 0;
-        _.each(qlist, fun (q, i) {
+        _.each(qlist, function (q, i) {
             if (q.next) {
                 var delta = Math.abs(q.other.which - q.next.other.which);
                 if (delta > maxDelta) {
@@ -3184,7 +3186,7 @@
             }
         });
 
-        _.each(qlist, fun (q, i) {
+        _.each(qlist, function (q, i) {
             if (q.next) {
                 var delta = q.next.other.which - q.other.which;
                 if (q.which != 0 && delta != 1) {
@@ -3195,7 +3197,7 @@
         });
     }
 
-    fun drawConnection(q1, q2, maxDelta) {
+    function drawConnection(q1, q2, maxDelta) {
         var TW = W - hPad;
         var delta = Math.abs(q1.other.which - q2.other.which);
         var cy = delta / maxDelta * CH * 2.0;
@@ -3220,10 +3222,10 @@
         q1.ppath.attr('stroke-width', 4);
     }
 
-    fun drawSections() {
+    function drawSections() {
         var sectionBase = H - 20;
         var tw = W - hPad;
-        _.each(curTrack.analysis.sections, fun (section, i) {
+        _.each(curTrack.analysis.sections, function (section, i) {
             var width = tw * section.duration / trackDuration;
             var x = hPad + tw * section.start / trackDuration;
             var srect = paper.rect(x, sectionBase, width, 20);
@@ -3231,7 +3233,7 @@
         });
     }
 
-    fun updateCursors(q) {
+    function updateCursors(q) {
         var cursorWidth = 8;
         if (masterCursor === null) {
             masterCursor = paper.rect(0, H - vPad, cursorWidth, vPad / 2);
@@ -3254,18 +3256,18 @@
         }
     }
 
-    fun moveAlong(rect, path, time) {
+    function moveAlong(rect, path, time) {
         var frame = 1 / 60.;
         var steps = Math.round(time / frame);
         var curStep = 0;
         var plength = path.getTotalLength();
         var oy = rect.attr('y');
 
-        fun animate() {
+        function animate() {
             var coords = path.getPointAtLength(curStep / steps * plength);
             if (curStep++ < steps) {
                 rect.attr({x: coords.x, y: coords.y});
-                setTimeout(fun () {
+                setTimeout(function () {
                     animate();
                 }, frame * 1000);
             } else {
@@ -3278,7 +3280,7 @@
 
     var minDistanceThreshold = 80;
 
-    fun pad(num, length) {
+    function pad(num, length) {
         var s = num.toString()
         while (s.length < length) {
             s = '0' + s
@@ -3286,8 +3288,8 @@
         return s
     }
 
-    fun calcWindowMedian(qlist, field, name, windowSize) {
-        _.each(qlist, fun (q) {
+    function calcWindowMedian(qlist, field, name, windowSize) {
+        _.each(qlist, function (q) {
             var vals = [];
             for (var i = 0; i < windowSize; i++) {
                 var offset = i - Math.floor(windowSize / 2);
@@ -3303,12 +3305,12 @@
         });
     }
 
-    fun average_volume(q) {
+    function average_volume(q) {
         var sum = 0;
         if (q.loudness_max !== undefined) {
             return q.loudness_max;
         } else if (q.overlappingSegments.length > 0) {
-            _.each(q.overlappingSegments, fun (seg, i) {
+            _.each(q.overlappingSegments, function (seg, i) {
                     sum += seg.loudness_max;
                 }
             );
@@ -3318,7 +3320,7 @@
         }
     }
 
-    fun interp(val, min, max) {
+    function interp(val, min, max) {
         if (min === max) {
             return min;
         } else {
@@ -3326,11 +3328,11 @@
         }
     }
 
-    fun assignNormalizedVolumes(qlist) {
+    function assignNormalizedVolumes(qlist) {
         var minV = 0;
         var maxV = -60;
 
-        _.each(qlist, fun (q, j) {
+        _.each(qlist, function (q, j) {
                 var vol = average_volume(q);
                 q.raw_volume = vol;
                 if (vol > maxV) {
@@ -3342,7 +3344,7 @@
             }
         );
 
-        _.each(qlist, fun (q, j) {
+        _.each(qlist, function (q, j) {
                 q.volume = interp(q.raw_volume, minV, maxV);
             }
         );
@@ -3350,7 +3352,7 @@
     }
 
 
-    fun fmtTime(time) {
+    function fmtTime(time) {
         if (isNaN(time)) {
             return '';
         } else {
@@ -3363,13 +3365,13 @@
         }
     }
 
-    fun Driver(player) {
+    function Driver(player) {
         var curQ = 0;
         var running = false;
         var mtime = $("#mtime");
         var nextTime = 0;
 
-        fun stop() {
+        function stop() {
             running = false;
             player.stop();
             $("#play").text("Play");
@@ -3377,7 +3379,7 @@
             $("#tweet-span").show();
         }
 
-        fun processOld() {
+        function processOld() {
             if (curQ >= masterQs.length) {
                 stop();
             } else if (running) {
@@ -3389,7 +3391,7 @@
                 delay = masterQ.duration;
 
                 curQ++;
-                setTimeout(fun () {
+                setTimeout(function () {
                     process();
                 }, 1000 * delay);
                 masterQ.tile.highlight();
@@ -3399,7 +3401,7 @@
             }
         }
 
-        fun process() {
+        function process() {
             if (curQ >= masterQs.length) {
                 stop();
             } else if (running) {
@@ -3407,7 +3409,7 @@
                 var otherGain = (1 - masterGain) * nextQ.otherGain;
                 var delay = player.playQ(nextQ, masterGain, otherGain);
                 curQ++;
-                setTimeout(fun () {
+                setTimeout(function () {
                     process();
                 }, 1000 * delay);
                 nextQ.tile.highlight();
@@ -3418,7 +3420,7 @@
         }
 
         var theInterface = {
-            start: fun () {
+            start: function () {
                 resetTileColors(masterQs);
                 curQ = 0;
                 nextTime = 0;
@@ -3429,7 +3431,7 @@
                 $("#play").text('Stop');
             },
 
-            resume: fun () {
+            resume: function () {
                 resetTileColors(masterQs);
                 nextTime = 0;
                 running = true;
@@ -3441,16 +3443,16 @@
 
             stop: stop,
 
-            isRunning: fun () {
+            isRunning: function () {
                 return running;
             },
 
-            process: fun () {
+            process: function () {
                 process();
             },
             player: player,
 
-            setNextQ: fun (q) {
+            setNextQ: function (q) {
                 curQ = q.which;
             }
         }
@@ -3461,6 +3463,8 @@
     window.onload = init;
 
 
-    fun ga_track(page, action, id) {
+    function ga_track(page, action, id) {
         _gaq.push(['_trackEvent', page, action, id]);
     }
+</script>
+{% endif %}
