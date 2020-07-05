@@ -16,6 +16,7 @@
 # Gradle:
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
+.gradle/
 
 ## File-based project format:
 *.iws
@@ -24,6 +25,7 @@
 
 # IntelliJ
 /out/
+build/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
