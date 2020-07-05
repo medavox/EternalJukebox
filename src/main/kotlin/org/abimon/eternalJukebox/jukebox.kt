@@ -80,7 +80,7 @@ var jukeboxData = mapOf<String, Any?>(
 
 // From Crockford, Douglas (2008-12-17). JavaScript: The Good Parts (Kindle Locations 734-736). Yahoo Press.
 
-if (typeof Object.create !== 'fun') {
+if (typeof Object.create !== "fun") {
     Object.create = fun (o) {
         var F = fun () {
         };
@@ -178,7 +178,7 @@ fun createTileCircle(qtype:Any?, radius:Any?) {
     var roffset = width / 2;
     var yoffset = width * .52;
     var xoffset = width * 1;
-    var center = ' S 450 350 ';
+    var center = " S 450 350 ";
     var branchCount = 0;
     R -= roffset;
     for (i in 0 until tiles.length) {
@@ -234,24 +234,24 @@ fun highlightCurve(curve:Any?, enable:Any?, jump:Any?) {
     if (curve) {
         if (enable) {
             var color = jump ? jumpHighlightColor : highlightColor;
-            curve.attr('stroke-width', 4);
-            curve.attr('stroke', color);
-            curve.attr('stroke-opacity', 1.0);
+            curve.attr("stroke-width", 4);
+            curve.attr("stroke", color);
+            curve.attr("stroke-opacity", 1.0);
             curve.toFront();
         } else {
             if (curve.edge) {
-                curve.attr('stroke-width', 3);
-                curve.attr('stroke', curve.edge.src.tile.quantumColor);
-                curve.attr('stroke-opacity', .7);
+                curve.attr("stroke-width", 3);
+                curve.attr("stroke", curve.edge.src.tile.quantumColor);
+                curve.attr("stroke-opacity", .7);
             }
         }
     }
 }
 
 fun selectCurve(curve:Any?) {
-    curve.attr('stroke-width', 6);
-    curve.attr('stroke', selectColor);
-    curve.attr('stroke-opacity', 1.0);
+    curve.attr("stroke-width", 6);
+    curve.attr("stroke", selectColor);
+    curve.attr("stroke-opacity", 1.0);
     curve.toFront();
 }
 
@@ -267,15 +267,15 @@ fun extractTitle(url:Any?) {
 }
 
 fun getTitle(title:Any?, artist:Any?, url:Any?) {
-    if (title == undefined || title.length == 0 || title == '(unknown title)' || title == 'undefined') {
+    if (title == undefined || title.length == 0 || title == "(unknown title)" || title == "undefined") {
         if (url) {
             title = extractTitle(url);
         } else {
             title = null;
         }
     } else {
-        if (artist !== '(unknown artist)') {
-            title = title + ' by ' + artist;
+        if (artist !== "(unknown artist)") {
+            title = title + " by " + artist;
         }
     }
     return title;
@@ -284,7 +284,7 @@ fun getTitle(title:Any?, artist:Any?, url:Any?) {
 
 fun trackReady(t:Any?) {
     t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
-    document.title = 'Eternal Jukebox for ' + t.fixedTitle;
+    document.title = "Eternal Jukebox for " + t.fixedTitle;
     $("#song-title").text(t.fixedTitle);
     $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
     jukeboxData.minLongBranch = track.analysis.beats.length / 5;
@@ -303,11 +303,11 @@ fun readyToPlay(t:Any?) {
 fun drawVisualization() {
     if (track) {
         if (jukeboxData.currentThreshold == 0) {
-            dynamicCalculateNearestNeighbors('beats');
+            dynamicCalculateNearestNeighbors("beats");
         } else {
-            calculateNearestNeighbors('beats', jukeboxData.currentThreshold);
+            calculateNearestNeighbors("beats", jukeboxData.currentThreshold);
         }
-        createTilePanel('beats');
+        createTilePanel("beats");
     }
 }
 
@@ -335,7 +335,7 @@ fun gotTheAnalysis(profile:Any?) {
                 }
             }
         } else {
-            info('Trouble  ' + t.status);
+            info("Trouble  " + t.status);
             setDisplayMode(false);
         }
     });
@@ -346,9 +346,9 @@ fun listSong(r:Any?) {
     var title = getTitle(r.title, r.artist, null);
     var item = null;
     if (title) {
-        var item = $('<li>').append(title);
+        var item = $("<li>").append(title);
 
-        item.attr('class', 'song-link');
+        item.attr("class", "song-link");
         item.click(fun () {
             showPlotPage(r.id);
         });
@@ -358,31 +358,31 @@ fun listSong(r:Any?) {
 
 fun listSongAsAnchor(r:Any?) {
     var title = getTitle(r.title, r.artist, r.url);
-    var item = $('<li>').html('<a href="index.html?id=' + r.id + '">' + title + '</a>');
+    var item = $("<li>").html("<a href="index.html?id=" + r.id + "\">" + title + "</a>");
     return item;
 }
 
 fun listTracks(active:Any?, tracks:Any?) {
-    $('#song-div').show();
-    $('#song-list').empty();
-    $('.sel-list').removeClass('activated');
-    $(active).addClass('activated');
+    $("#song-div").show();
+    $("#song-list").empty();
+    $(".sel-list").removeClass("activated");
+    $(active).addClass("activated");
     for (i in 0 until tracks.length) {
         var s = tracks[i];
         var item = listSong(s);
         if (item) {
-            $('#song-list').append(listSong(s));
+            $("#song-list").append(listSong(s));
         }
     }
 }
 
 fun analyzeAudio(audio:Any?, tag:Any?, callback:Any?) {
-    var url = 'qanalyze';
+    var url = "qanalyze";
     $.getJSON(url, {url: audio, tag: tag}, fun (data) {
-        if (data.status == 'done' || data.status == 'error') {
+        if (data.status == "done" || data.status == "error") {
             callback(data);
         } else {
-            info(data.status + ' - ready in about ' + data.estimated_wait + ' secs. ');
+            info(data.status + " - ready in about " + data.estimated_wait + " secs. ");
             setTimeout(fun () {
                 analyzeAudio(audio, tag, callback);
             }, 5000);
@@ -398,8 +398,8 @@ fun noCache() {
 }
 
 fun fetchAnalysis(id:Any?) {
-    var url = '/api/analysis/analyse/' + id;
-    info('Fetching the analysis');
+    var url = "/api/analysis/analyse/" + id;
+    info("Fetching the analysis");
 
     $.ajax({
         url: url,
@@ -436,18 +436,18 @@ fun get_status(data:Any?) {
     if (data.response.status.code == 0) {
         return data.response.track.status;
     } else {
-        return 'error';
+        return "error";
     }
 }
 
 fun fetchSignature() {
-    var url = 'policy';
+    var url = "policy";
     $.getJSON(url, {}, fun (data) {
         policy = data.policy;
         signature = data.signature;
-        $('#f-policy').val(data.policy);
-        $('#f-signature').val(data.signature);
-        $('#f-key').val(data.key);
+        $("#f-policy").val(data.policy);
+        $("#f-signature").val(data.signature);
+        $("#f-key").val(data.key);
     });
 }
 
@@ -459,13 +459,16 @@ fun calculateDim(numTiles:Any?, totalWidth:Any?, totalHeight:Any?) {
 }
 
 
-var timbreWeight = 1, pitchWeight = 10,
-loudStartWeight = 1, loudMaxWeight = 1,
-durationWeight = 100, confidenceWeight = 1;
+var timbreWeight = 1
+var pitchWeight = 10
+var loudStartWeight = 1
+var loudMaxWeight = 1
+var durationWeight = 100
+var confidenceWeight = 1
 
 fun get_seg_distances(seg1:Any?, seg2:Any?) {
-    var timbre = seg_distance(seg1, seg2, 'timbre', true);
-    var pitch = seg_distance(seg1, seg2, 'pitches');
+    var timbre = seg_distance(seg1, seg2, "timbre", true);
+    var pitch = seg_distance(seg1, seg2, "pitches");
     var sloudStart = Math.abs(seg1.loudness_start - seg2.loudness_start);
     var sloudMax = Math.abs(seg1.loudness_max - seg2.loudness_max);
     var duration = Math.abs(seg1.duration - seg2.duration);
@@ -523,12 +526,12 @@ fun removeDeletedEdges() {
     jukeboxData.deletedEdges = mutableListOf<Any?>();
 }
 
-fun getAllDeletedEdgeIDs() {
+fun getAllDeletedEdgeIDs():List<Any> {
     var results = mutableListOf<Any?>();
     for (i in 0 until jukeboxData.allEdges.length) {
         var edge = jukeboxData.allEdges[i];
         if (edge.deleted) {
-            results.push(edge.id);
+            results.add(edge.id);
         }
     }
     return results;
@@ -537,7 +540,7 @@ fun getAllDeletedEdgeIDs() {
 fun getDeletedEdgeString() {
     var ids = getAllDeletedEdgeIDs();
     if (ids.length > 0) {
-        return '&d=' + ids.join(',');
+        return "&d=" + ids.join(',');
     } else {
         return "";
     }
@@ -585,28 +588,28 @@ fun setTunedURL() {
     if (track) {
         var edges = getDeletedEdgeString();
         var addBranchParams = false;
-        var lb = '';
+        var lb = "";
 
         if (!jukeboxData.addLastEdge) {
-            lb = '&lb=0';
+            lb = "&lb=0";
         }
 
-        var p = '?id=' + track.info.id + edges + lb;
+        var p = "?id=" + track.info.id + edges + lb;
 
         if (jukeboxData.justBackwards) {
-            p += '&jb=1'
+            p += "&jb=1"
         }
 
         if (jukeboxData.justLongBranches) {
-            p += '&lg=1'
+            p += "&lg=1"
         }
 
         if (jukeboxData.removeSequentialBranches) {
-            p += '&sq=0'
+            p += "&sq=0"
         }
 
         if (jukeboxData.currentThreshold !== jukeboxData.computedThreshold) {
-            p += '&thresh=' + jukeboxData.currentThreshold;
+            p += "&thresh=" + jukeboxData.currentThreshold;
         }
 
         if (jukeboxData.audioURL !== null) {
@@ -625,7 +628,7 @@ fun setTunedURL() {
         }
 
         if (addBranchParams) {
-            p += '&bp=' + [
+            p += "&bp=" + [
                 Math.round(map_value_to_percent(jukeboxData.minRandomBranchChance, 0, 1)),
                 Math.round(map_value_to_percent(jukeboxData.maxRandomBranchChance, 0, 1)),
                 Math.round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
@@ -935,7 +938,7 @@ fun calculateNearestNeighborsForQuantum(type:Any?, maxNeighbors:Any?, maxThresho
 
 fun precalculateNearestNeighbors(type:Any?, maxNeighbors:Any?, maxThreshold:Any?) {
     // skip if this is already done
-    if ('all_neighbors' in track.analysis[type][0]) {
+    if ("all_neighbors" in track.analysis[type][0]) {
         return;
     }
     jukeboxData.allEdges = mutableListOf<Any?>();
@@ -1008,7 +1011,7 @@ fun calcBranchInfo(type:Any?) {
         }
     }
     console.log(histogram);
-    console.log('total branches', total);
+    console.log("total branches", total);
 }
 
 fun euclidean_distance(v1:Any?, v2:Any?) {
@@ -1040,7 +1043,7 @@ fun redrawTiles() {
         if (newWidth < 1) {
             newWidth = 1;
         }
-        tile.rect.attr('width', newWidth);
+        tile.rect.attr("width", newWidth);
     });
 }
 
@@ -1061,7 +1064,7 @@ class tilePrototype {
 
         tile.rect = paper.rect(0, 0, tile.width, tile.height);
         tile.rect.attr("stroke", tile.normalColor);
-        tile.rect.attr('stroke-width', 0);
+        tile.rect.attr("stroke-width", 0);
         tile.q = q;
         tile.init();
         q.tile = tile;
@@ -1116,7 +1119,7 @@ class tilePrototype {
             this.isPlaying = true;
             if (!this.isScaled) {
                 this.isScaled = true;
-                this.rect.attr('width', maxTileWidth);
+                this.rect.attr("width", maxTileWidth);
             }
             this.rect.toFront();
             this.rect.attr("fill", highlightColor);
@@ -1138,7 +1141,7 @@ class tilePrototype {
                 curGrowFactor /= 2;
                 redrawTiles();
             } else {
-                this.rect.attr('width', newWidth);
+                this.rect.attr("width", newWidth);
             }
         }
         highlightCurves(this, false, false);
@@ -1152,7 +1155,7 @@ class tilePrototype {
             that.playStyle(false);
             if (debugMode) {
                 if (that.q.which > jukeboxData.lastBranchPoint) {
-                    $("#beats").text(that.q.which + ' ' + that.q.reach + '*');
+                    $("#beats").text(that.q.which + ' " + that.q.reach + "*');
                 } else {
                     var qlength = track.analysis.beats.length;
                     var distanceToEnd = qlength - that.q.which;
@@ -1209,7 +1212,7 @@ fun getQuantumSegment(q:Any?) {
 }
 
 fun isSegment(q:Any?) {
-    return 'timbre' in q;
+    return "timbre" in q;
 }
 
 fun getBranchColor(q:Any?) {
@@ -1339,10 +1342,10 @@ fun keydown(evt:Any?) {
         jukeboxData.infiniteMode = !jukeboxData.infiniteMode;
         if (jukeboxData.infiniteMode) {
             info("Infinite Mode enabled");
-            ga_track('main', 'infinite-mode', '');
+            ga_track("main", "infinite-mode", "");
         } else {
             info("Bringing it on home");
-            ga_track('main', 'home', '');
+            ga_track("main", "home", "");
         }
     }
 
@@ -1354,10 +1357,10 @@ fun keydown(evt:Any?) {
         evt.preventDefault();
         if (driver.isRunning()) {
             driver.stop();
-            ga_track('main', 'key-stop', '');
+            ga_track("main", "key-stop", "");
         } else {
             driver.start();
-            ga_track('main', 'key-start', '');
+            ga_track("main", "key-start", "");
         }
     }
 
@@ -1382,13 +1385,13 @@ fun searchForTrack() {
     console.log(q);
 
     if (q.length > 0) {
-        var url = 'search';
+        var url = "search";
         $.getJSON(url, {q: q, results: 30}, fun (data) {
             console.log(data);
             for (i in 0 until data.length) {
                 data[i].id = data[i].id;
             }
-            listTracks('#search-list', data);
+            listTracks("#search-list", data);
         });
     }
 }
@@ -1450,7 +1453,7 @@ fun init() {
 
     $("#load").click(
             fun () {
-                ga_track('main', 'load', '');
+                ga_track("main", "load", "");
                 if (!uploadingAllowed) {
                     alert("Sorry, uploading is temporarily disabled, while we are under heavy load");
                 } else {
@@ -1463,10 +1466,10 @@ fun init() {
             fun () {
                 if (driver.isRunning()) {
                     driver.stop();
-                    ga_track('main', 'stop', track.info.id);
+                    ga_track("main", "stop", track.info.id);
                 } else {
                     driver.start();
-                    ga_track('main', 'start', track.info.id);
+                    ga_track("main", "start", track.info.id);
                 }
             }
     );
@@ -1484,7 +1487,7 @@ fun init() {
                     driver.stop();
                 }
                 setDisplayMode(false);
-                ga_track('main', 'new', '');
+                ga_track("main", "new", "");
             }
     );
 
@@ -1492,11 +1495,11 @@ fun init() {
             fun () {
                 var controls = $("#controls");
                 if (jukeboxData.tuningOpen)
-                    controls.dialog('close');
+                    controls.dialog("close");
                 else
-                    controls.dialog('open');
+                    controls.dialog("open");
                 jukeboxData.tuningOpen = !jukeboxData.tuningOpen;
-                ga_track('main', 'tune', '');
+                ga_track("main", "tune", "");
             }
     );
 
@@ -1563,14 +1566,14 @@ fun init() {
     $("#reset-edges").click(
             fun () {
                 resetTuning();
-                ga_track('main', 'reset', '');
+                ga_track("main", "reset", "");
             }
     );
 
     $("#close-tune").click(
             fun() {
                 var controls = $("#controls");
-                controls.dialog('close');
+                controls.dialog("close");
                 jukeboxData.tuningOpen = false;
             }
     );
@@ -1578,7 +1581,7 @@ fun init() {
     $("#last-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.addLastEdge = $('#last-branch').is(':checked');
+                    jukeboxData.addLastEdge = $("#last-branch").is(":checked");
                     drawVisualization();
                 }
             }
@@ -1587,7 +1590,7 @@ fun init() {
     $("#reverse-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.justBackwards = $('#reverse-branch').is(':checked');
+                    jukeboxData.justBackwards = $("#reverse-branch").is(":checked");
                     drawVisualization();
                 }
             }
@@ -1596,7 +1599,7 @@ fun init() {
     $("#long-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.justLongBranches = $('#long-branch').is(':checked');
+                    jukeboxData.justLongBranches = $("#long-branch").is(":checked");
                     drawVisualization();
                 }
             }
@@ -1605,7 +1608,7 @@ fun init() {
     $("#sequential-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.removeSequentialBranches = $('#sequential-branch').is(':checked');
+                    jukeboxData.removeSequentialBranches = $("#sequential-branch").is(":checked");
                     drawVisualization();
                 }
             }
@@ -1693,7 +1696,7 @@ fun init() {
         $.ajax({
             url: "/api/audio/upload",
             type: "POST",
-            data: FormData($('#audio-upload-form')[0]),
+            data: FormData($("#audio-upload-form")[0]),
             processData: false,
             contentType: false,
             headers: {
@@ -1705,14 +1708,14 @@ fun init() {
                 if (evt.lengthComputable) {
                     var percentComplete = evt.loaded / evt.total;
                     percentComplete = percentComplete * 100;
-                    $('#audio-progress').text(percentComplete + '%');
-                    $('#audio-progress').css('width', percentComplete + '%');
+                    $("#audio-progress").text(percentComplete + '%');
+                    $("#audio-progress").css("width", percentComplete + '%');
                 }
             }, false);
             return xhr;
         },
             success: fun (data) {
-            jukeboxData.audioURL = 'upl:' + data["id"];
+            jukeboxData.audioURL = "upl:" + data["id"];
             setTunedURL();
             window.location.reload(true);
         },
@@ -1725,7 +1728,7 @@ fun init() {
     $("#disable-keys").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.disableKeys = $('#disable-keys').is(':checked');
+                    jukeboxData.disableKeys = $("#disable-keys").is(":checked");
                     setTunedURL();
                 }
             }
@@ -1743,48 +1746,48 @@ fun init() {
     }
     });
 
-    watch(jukeboxData, 'addLastEdge',
+    watch(jukeboxData, "addLastEdge",
             fun () {
-                $("#last-branch").attr('checked', jukeboxData.addLastEdge);
+                $("#last-branch").attr("checked", jukeboxData.addLastEdge);
                 setTunedURL();
             }
     );
 
-    watch(jukeboxData, 'justBackwards',
+    watch(jukeboxData, "justBackwards",
             fun () {
-                $("#reverse-branch").attr('checked', jukeboxData.justBackwards);
+                $("#reverse-branch").attr("checked", jukeboxData.justBackwards);
                 setTunedURL();
             }
     );
 
-    watch(jukeboxData, 'justLongBranches',
+    watch(jukeboxData, "justLongBranches",
             fun () {
-                $("#long-branch").attr('checked', jukeboxData.justLongBranches);
+                $("#long-branch").attr("checked", jukeboxData.justLongBranches);
                 setTunedURL();
             }
     );
 
-    watch(jukeboxData, 'removeSequentialBranches',
+    watch(jukeboxData, "removeSequentialBranches",
             fun () {
-                $("#sequential-branch").attr('checked', jukeboxData.removeSequentialBranches);
+                $("#sequential-branch").attr("checked", jukeboxData.removeSequentialBranches);
                 setTunedURL();
             }
     );
 
-    watch(jukeboxData, 'currentThreshold',
+    watch(jukeboxData, "currentThreshold",
             fun () {
                 $("#threshold").text(jukeboxData.currentThreshold);
                 $("#threshold-slider").slider("value", jukeboxData.currentThreshold);
             }
     );
 
-    watch(jukeboxData, 'lastThreshold',
+    watch(jukeboxData, "lastThreshold",
             fun () {
                 $("#last-threshold").text(Math.round(jukeboxData.lastThreshold));
             }
     );
 
-    watch(jukeboxData, 'minRandomBranchChance',
+    watch(jukeboxData, "minRandomBranchChance",
             fun () {
                 $("#min-prob").text(Math.round(jukeboxData.minRandomBranchChance * 100));
                 $("#probability-slider").slider("values",
@@ -1794,7 +1797,7 @@ fun init() {
             }
     );
 
-    watch(jukeboxData, 'maxRandomBranchChance',
+    watch(jukeboxData, "maxRandomBranchChance",
             fun () {
                 $("#max-prob").text(Math.round(jukeboxData.maxRandomBranchChance * 100));
                 $("#probability-slider").slider("values",
@@ -1804,13 +1807,13 @@ fun init() {
             }
     );
 
-    watch(jukeboxData, 'curRandomBranchChance',
+    watch(jukeboxData, "curRandomBranchChance",
             fun () {
                 $("#branch-chance").text(Math.round(jukeboxData.curRandomBranchChance * 100));
             }
     );
 
-    watch(jukeboxData, 'randomBranchChanceDelta',
+    watch(jukeboxData, "randomBranchChanceDelta",
             fun () {
                 var val = Math.round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
                         minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
@@ -1819,25 +1822,25 @@ fun init() {
             }
     );
 
-    watch(jukeboxData, 'totalBeats',
+    watch(jukeboxData, "totalBeats",
             fun () {
                 $("#total-beats").text(jukeboxData.totalBeats);
             }
     );
 
-    watch(jukeboxData, 'branchCount',
+    watch(jukeboxData, "branchCount",
             fun () {
                 $("#branch-count").text(jukeboxData.branchCount);
             }
     );
 
-    watch(jukeboxData, 'deletedEdgeCount',
+    watch(jukeboxData, "deletedEdgeCount",
             fun () {
                 $("#deleted-branches").text(jukeboxData.deletedEdgeCount);
             }
     );
 
-    watch(jukeboxData, 'longestReach',
+    watch(jukeboxData, "longestReach",
             fun () {
                 $("#loop-length-percent").text(Math.round(jukeboxData.longestReach));
                 var loopBeats = Math.round(jukeboxData.longestReach * jukeboxData.totalBeats / 100);
@@ -1846,15 +1849,15 @@ fun init() {
             }
     );
 
-    watch(jukeboxData, 'audioURL',
+    watch(jukeboxData, "audioURL",
             fun () {
                 $("#audio-url").val(decodeURIComponent(jukeboxData.audioURL));
             }
     );
 
-    watch(jukeboxData, 'disableKeys',
+    watch(jukeboxData, "disableKeys",
             fun () {
-                $("#disable-keys").attr('checked', jukeboxData.disableKeys);
+                $("#disable-keys").attr("checked", jukeboxData.disableKeys);
                 setTunedURL();
             }
     );
@@ -2132,7 +2135,7 @@ fun Driver(player:Any?) {
         lateCounter = 0;
         curOp = next;
         startTime = now();
-        $("#go").text('Stop');
+        $("#go").text("Stop");
         error("");
         info("");
         resetPlayCounts();
@@ -2141,7 +2144,7 @@ fun Driver(player:Any?) {
 
         stop: fun () {
         var delta = now() - startTime;
-        $("#go").text('Play');
+        $("#go").text("Play");
         if (curTile) {
             curTile.normal();
             curTile = null;
@@ -2210,16 +2213,16 @@ fun processParams() {
         }
     }
 
-    if ('id' in params) {
-        var id = params['id'];
+    if ("id" in params) {
+        var id = params["id"];
         jukeboxData.trackID = id;
 
         var thresh = 0;
-        if ('thresh' in params) {
-            jukeboxData.currentThreshold = parseInt(params['thresh']);
+        if ("thresh" in params) {
+            jukeboxData.currentThreshold = parseInt(params["thresh"]);
         }
-        if ('audio' in params) {
-            jukeboxData.audioURL = decodeURIComponent(params['audio']);
+        if ("audio" in params) {
+            jukeboxData.audioURL = decodeURIComponent(params["audio"]);
         }
         if ('d' in params) {
             var df = params['d'].split(',');
@@ -2228,38 +2231,38 @@ fun processParams() {
                 jukeboxData.deletedEdges.push(di);
             }
         }
-        if ('lb' in params) {
-            if (params['lb'] == '0') {
+        if ("lb" in params) {
+            if (params["lb"] == '0') {
                 jukeboxData.addLastEdge = true;
             }
         }
 
-        if ('jb' in params) {
-            if (params['jb'] == '1') {
+        if ("jb" in params) {
+            if (params["jb"] == '1') {
                 jukeboxData.justBackwards = true;
             }
         }
 
-        if ('lg' in params) {
-            if (params['lg'] == '1') {
+        if ("lg" in params) {
+            if (params["lg"] == '1') {
                 jukeboxData.justLongBranches = true;
             }
         }
 
-        if ('sq' in params) {
-            if (params['sq'] == '0') {
+        if ("sq" in params) {
+            if (params["sq"] == '0') {
                 jukeboxData.removeSequentialBranches = true;
             }
         }
 
-        if ('nokeys' in params) {
-            if (params['nokeys'] == '1') {
+        if ("nokeys" in params) {
+            if (params["nokeys"] == '1') {
                 jukeboxData.disableKeys = true
             }
         }
 
-        if ('bp' in params) {
-            var bp = params['bp'];
+        if ("bp" in params) {
+            var bp = params["bp"];
             var fields = bp.split(',');
             if (fields.length == 3) {
                 var minRange = parseInt(fields[0]);
@@ -2275,14 +2278,14 @@ fun processParams() {
         }
         setDisplayMode(true);
         fetchAnalysis(id);
-    } else if ('key' in params) {
-        var url = 'http://' + params['bucket'] + '/' + urldecode(params['key']);
+    } else if ("key" in params) {
+        var url = "http://" + params["bucket"] + '/' + urldecode(params["key"]);
         info("analyzing audio");
         setDisplayMode(true);
         $("#select-track").hide();
-        analyzeAudio(url, 'tag',
+        analyzeAudio(url, "tag",
                 fun (data) {
-                    if (data.status == 'done') {
+                    if (data.status == "done") {
                         showPlotPage(data.id);
                     } else {
                         info("Trouble analyzing that track " + data.message);
@@ -2302,7 +2305,7 @@ fun showPlotPage(id:Any?) {
 }
 
 fun urldecode(str:Any?) {
-    return decodeURIComponent((str + '').replace(/\+/g, '%20'));
+    return decodeURIComponent((str + "").replace(/\+/g, "%20"));
 }
 
 fun endsWith(str:Any?, suffix:Any?) {
@@ -2315,31 +2318,31 @@ fun isTuned(url:Any?) {
 
 fun tweetSetup(t:Any?) {
     $(".twitter-share-button").remove();
-    var tweet = $('<a>')
-    .attr('href', "https://twitter.com/share")
-            .attr('id', "tweet")
-            .attr('class', "twitter-share-button")
-            .attr('data-lang', "en")
-            .attr('data-count', "none")
-            .text('Tweet');
+    var tweet = $("<a>")
+    .attr("href", "https://twitter.com/share")
+            .attr("id", "tweet")
+            .attr("class", "twitter-share-button")
+            .attr("data-lang", "en")
+            .attr("data-count", "none")
+            .text("Tweet");
 
     $("#tweet-span").prepend(tweet);
     if (t) {
-        var tuned = '';
+        var tuned = "";
         if (isTuned(document.URL)) {
-            tuned = 'Tuned ';
+            tuned = "Tuned ";
         }
-        tweet.attr('data-text', tuned + "#EternalJukebox of " + t.fixedTitle);
-        tweet.attr('data-url', document.URL);
+        tweet.attr("data-text", tuned + "#EternalJukebox of " + t.fixedTitle);
+        tweet.attr("data-url", document.URL);
     }
     // twitter can be troublesome. If it is not there, don't bother loading it
-    if ('twttr' in window) {
+    if ("twttr" in window) {
         twttr.widgets.load();
     }
 }
 
 fun ga_track(page:Any?, action:Any?, id:Any?) {
-    _gaq.push(['_trackEvent', page, action, id]);
+    _gaq.push(["_trackEvent", page, action, id]);
 }
 
 window.onload = init;
