@@ -14,6 +14,7 @@ repositories {
     maven { url "https://dl.bintray.com/kotlin/ktor" }
     mavenCentral()
     maven { url "https://jitpack.io" }
+    maven { url "https://kotlin.bintray.com/js-externals" }
     maven { url "https://maven.abimon.org" }
 }
 def ktor_version = "1.1.3"
@@ -97,6 +98,7 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin("stdlib-js")
+                implementation "kotlin.js.externals:kotlin-js-jquery:2.0.0-0"
             }
         }
         jsTest {

@@ -1,5 +1,7 @@
 package org.abimon.eternalJukebox
 
+import js.externals.jquery.jQuery
+
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has
 // quite a bit of hackage of the bad kind in it.
@@ -36,7 +38,7 @@ var growthPerPlay = 10;
 var curGrowFactor = 1;
 
 
-evenprivate var jukeboxData = object {
+private var jukeboxData = object {
     var infiniteMode = true      // if true, allow branching
     var maxBranches = 4        // max branches allowed per beat
     var maxBranchThreshold = 80 // max allowed distance threshold
@@ -44,52 +46,52 @@ evenprivate var jukeboxData = object {
     var computedThreshold = 0   // computed best threshold
     var currentThreshold = 0    // current in-use max threshold
         set(newValue) {
-            $("#threshold").text(newValue);
-            $("#threshold-slider").slider("value", newValue);
+            jQuery("#threshold").text(newValue);
+            jQuery("#threshold-slider").slider("value", newValue);
         }
     var addLastEdge = true      // if true, optimize by adding a good last edge
         set(newValue) {
-            $("#last-branch").attr("checked", newValue);
+            jQuery("#last-branch").attr("checked", newValue);
             setTunedURL();
         }
     var justBackwards = false   // if true, only add backward branches
         set(newValue) {
-            $("#reverse-branch").attr("checked", newValue);
+            jQuery("#reverse-branch").attr("checked", newValue);
             setTunedURL();
         }
     var justLongBranches = false// if true, only add long branches
         set(newValue) {
-            $("#long-branch").attr("checked", newValue);
+            jQuery("#long-branch").attr("checked", newValue);
             setTunedURL();
         }
     var removeSequentialBranches = false// if true, remove consecutive branches of the same distance
         set(newValue) {
-            $("#sequential-branch").attr("checked", newValue);
+            jQuery("#sequential-branch").attr("checked", newValue);
             setTunedURL();
         }
 
     var deletedEdgeCount = 0    // number of edges that have been deleted
         set(newValue) {
-            $("#deleted-branches").text(newValue);
+            jQuery("#deleted-branches").text(newValue);
         }
 
     var lastBranchPoint = 0    // last beat with a good branch
     var longestReach = 0.0       // longest looping secstion
         set(newValue) {
-            $("#loop-length-percent").text(Math.round(newValue));
+            jQuery("#loop-length-percent").text(Math.round(newValue));
             var loopBeats = Math.round(newValue * totalBeats / 100);
-            $("#loop-length-beats").text(loopBeats);
-            $("#total-beats").text(totalBeats);
+            jQuery("#loop-length-beats").text(loopBeats);
+            jQuery("#total-beats").text(totalBeats);
         }
 
     var beatsPlayed = 0          // total number of beats played
     var totalBeats = 0         // total number of beats in the song
         set(newValue) {
-            $("#total-beats").text(newValue);
+            jQuery("#total-beats").text(newValue);
         }
     var branchCount = 0         // total number of active branches
         set(newValue) {
-            $("#branch-count").text(newValue);
+            jQuery("#branch-count").text(newValue);
         }
 
     var selectedTile = null    // current selected tile
@@ -101,23 +103,23 @@ evenprivate var jukeboxData = object {
 
     var audioURL = null        // The URL to play audio from; null means default
         set(newValue) {
-            $("#audio-url").val(decodeURIComponent(newValue));
+            jQuery("#audio-url").val(decodeURIComponent(newValue));
         }
     var trackID = null
     var ogAudioURL = null
 
     var minRandomBranchChance = 0.0
         set(newValue) {
-            $("#min-prob").text(Math.round(newValue * 100));
-            $("#probability-slider").slider("values",
+            jQuery("#min-prob").text(Math.round(newValue * 100));
+            jQuery("#probability-slider").slider("values",
                     [newValue * 100, maxRandomBranchChance * 100]);
             curRandomBranchChance = clamp(curRandomBranchChance,
                     newValue, maxRandomBranchChance);
         }
     var maxRandomBranchChance = 0.0
         set(newValue) {
-            $("#max-prob").text(Math.round(newValue * 100));
-            $("#probability-slider").slider("values",
+            jQuery("#max-prob").text(Math.round(newValue * 100));
+            jQuery("#probability-slider").slider("values",
                     [minRandomBranchChance * 100, newValue * 100]);
             curRandomBranchChance = clamp(curRandomBranchChance,
                     minRandomBranchChance, newValue);
@@ -126,60 +128,60 @@ evenprivate var jukeboxData = object {
         set(newValue) {
             var `val` = Math.round(map_value_to_percent(newValue,
                     minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
-            $("#ramp-speed").text(`val`);
-            $("#probabiltiy-ramp-slider").slider("value", `val`);
+            jQuery("#ramp-speed").text(`val`);
+            jQuery("#probabiltiy-ramp-slider").slider("value", `val`);
         }
     var curRandomBranchChance = 0.0
         set(newValue) {
-            $("#branch-chance").text(Math.round(newValue * 100));
+            jQuery("#branch-chance").text(Math.round(newValue * 100));
         }
     var lastThreshold = 0.0
         set(newValue) {
-            $("#last-threshold").text(Math.round(newValue));
+            jQuery("#last-threshold").text(Math.round(newValue));
         }
 
     var tuningOpen = false
     var disableKeys = false
         set(newValue) {
-            $("#disable-keys").attr("checked", newValue);
+            jQuery("#disable-keys").attr("checked", newValue);
             setTunedURL();
         }
 }
 
 fun info(s:Any) {
-    $("#info").text(s);
+    jQuery("#info").text(s);
 }
 
 
 fun error(s:Any) {
     if (s.length == 0) {
-        $("#error").hide();
+        jQuery("#error").hide();
     } else {
-        $("#error").text(s);
-        $("#error").show();
+        jQuery("#error").text(s);
+        jQuery("#error").show();
     }
 }
 
 fun setDisplayMode(playMode:Any?) {
     if (playMode) {
-        $("#song-div").hide();
-        $("#select-track").hide();
-        $("#running").show();
-        $(".rotate").hide();
+        jQuery("#song-div").hide();
+        jQuery("#select-track").hide();
+        jQuery("#running").show();
+        jQuery(".rotate").hide();
     } else {
-        $("#song-div").show();
-        $("#select-track").show();
-        $("#running").hide();
-        $(".rotate").show();
+        jQuery("#song-div").show();
+        jQuery("#select-track").show();
+        jQuery("#running").hide();
+        jQuery(".rotate").show();
     }
     info("");
 }
 
 fun hideAll() {
-    $("#song-div").hide();
-    $("#select-track").hide();
-    $("#running").hide();
-    $(".rotate").hide();
+    jQuery("#song-div").hide();
+    jQuery("#select-track").hide();
+    jQuery("#running").hide();
+    jQuery(".rotate").hide();
 }
 
 
@@ -340,8 +342,8 @@ fun getTitle(title:String, artist:Any?, url:String?):String? {
 fun trackReady(t:Any?) {
     t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
     document.title = "Eternal Jukebox for " + t.fixedTitle;
-    $("#song-title").text(t.fixedTitle);
-    $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
+    jQuery("#song-title").text(t.fixedTitle);
+    jQuery("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
     jukeboxData.minLongBranch = track.analysis.beats.length / 5;
 }
 
@@ -401,7 +403,7 @@ fun listSong(r:Any?) {
     var title = getTitle(r.title, r.artist, null);
     var item = null;
     if (title != null) {
-        var item = $("<li>").append(title);
+        var item = jQuery("<li>").append(title);
 
         item.attr("class", "song-link");
         item.click(fun () {
@@ -413,27 +415,27 @@ fun listSong(r:Any?) {
 
 fun listSongAsAnchor(r:Any?) {
     var title = getTitle(r.title, r.artist, r.url);
-    var item = $("<li>").html("<a href="index.html?id=" + r.id + "\">" + title + "</a>");
+    var item = jQuery("<li>").html("<a href="index.html?id=" + r.id + "\">" + title + "</a>");
     return item;
 }
 
 fun listTracks(active:Any?, tracks:Any?) {
-    $("#song-div").show();
-    $("#song-list").empty();
-    $(".sel-list").removeClass("activated");
-    $(active).addClass("activated");
+    jQuery("#song-div").show();
+    jQuery("#song-list").empty();
+    jQuery(".sel-list").removeClass("activated");
+    jQuery(active).addClass("activated");
     for (i in 0 until tracks.length) {
         var s = tracks[i];
         var item = listSong(s);
         if (item != null) {
-            $("#song-list").append(listSong(s));
+            jQuery("#song-list").append(listSong(s));
         }
     }
 }
 
 fun analyzeAudio(audio:Any?, tag:Any?, callback:Any?) {
     var url = "qanalyze";
-    $.getJSON(url, {url: audio, tag: tag}, fun (data) {
+    jQuery.getJSON(url, {url: audio, tag: tag}, fun (data) {
         if (data.status == "done" || data.status == "error") {
             callback(data);
         } else {
@@ -456,7 +458,7 @@ fun fetchAnalysis(id:Any?) {
     var url = "/api/analysis/analyse/" + id;
     info("Fetching the analysis");
 
-    $.ajax({
+    jQuery.ajax({
         url: url,
         dataType: "json",
         type: "GET",
@@ -469,14 +471,14 @@ fun fetchAnalysis(id:Any?) {
     }
     });
 
-    $.ajax({
+    jQuery.ajax({
         url: "/api/audio/jukebox/" + id + "/location",
         dataType: "json",
         type: "GET",
         crossDomain: true,
         success: fun (data) {
         if(data["url"] == undefined) {
-            $("#og-audio-source").remove();
+            jQuery("#og-audio-source").remove();
         } else {
             jukeboxData.ogAudioURL = data["url"];
         }
@@ -497,12 +499,12 @@ fun get_status(data:Any?) {
 
 fun fetchSignature() {
     var url = "policy";
-    $.getJSON(url, {}, fun (data) {
+    jQuery.getJSON(url, {}, fun (data) {
         policy = data.policy;
         signature = data.signature;
-        $("#f-policy").val(data.policy);
-        $("#f-signature").val(data.signature);
-        $("#f-key").val(data.key);
+        jQuery("#f-policy").val(data.policy);
+        jQuery("#f-signature").val(data.signature);
+        jQuery("#f-key").val(data.key);
     });
 }
 
@@ -1216,7 +1218,7 @@ fun deleteEdge(edge:Any?) {
 }
 
 fun keydown(evt:Any?) {
-    if (!$("#hero").is(":visible") || $("#controls").is(":visible") || jukeboxData.disableKeys) {
+    if (!jQuery("#hero").is(":visible") || jQuery("#controls").is(":visible") || jukeboxData.disableKeys) {
         return;
     }
 
@@ -1299,12 +1301,12 @@ fun keyup(evt:Any?) {
 
 fun searchForTrack() {
     console.log("search for a track");
-    var q = $("#search-text").val();
+    var q = jQuery("#search-text").val();
     console.log(q);
 
     if (q.length > 0) {
         var url = "search";
-        $.getJSON(url, {q: q, results: 30}, fun (data) {
+        jQuery.getJSON(url, {q: q, results: 30}, fun (data) {
             console.log(data);
             for (i in 0 until data.length) {
                 data[i].id = data[i].id;
@@ -1317,7 +1319,7 @@ fun searchForTrack() {
 fun getShareURL(callback:Any?) {
     var q = document.URL.split('?')[1];
 
-    $.ajax({
+    jQuery.ajax({
         url: "/api/site/shrink",
         dataType: "json",
         type: "POST",
@@ -1334,7 +1336,7 @@ fun getShareURL(callback:Any?) {
 
 fun checkIfStarred() {
     getShareURL(fun (id) {
-        $.ajax({
+        jQuery.ajax({
             url: "/api/profile/me",
             dataType: "json",
             type: "GET",
@@ -1342,7 +1344,7 @@ fun checkIfStarred() {
             var stars = data["stars"];
             for (i in 0 until stars.length) {
                 if (stars[i] == id) {
-                    $("#star").text("Unstar");
+                    jQuery("#star").text("Unstar");
                     break;
                 }
             }
@@ -1361,15 +1363,15 @@ fun init() {
         return false;
     };
 
-    $(document).keydown(keydown);
-    $(document).keyup(keyup);
+    jQuery(document).keydown(keydown);
+    jQuery(document).keyup(keyup);
 
     paper = Raphael("tiles", W, H);
 
-    $("#error").hide();
+    jQuery("#error").hide();
 
 
-    $("#load").click(
+    jQuery("#load").click(
             fun () {
                 ga_track("main", "load", "");
                 if (!uploadingAllowed) {
@@ -1380,7 +1382,7 @@ fun init() {
             }
     );
 
-    $("#go").click(
+    jQuery("#go").click(
             fun () {
                 if (driver.isRunning()) {
                     driver.stop();
@@ -1392,14 +1394,14 @@ fun init() {
             }
     );
 
-    $("#search").click(searchForTrack);
-    $("#search-text").keyup(fun (e) {
+    jQuery("#search").click(searchForTrack);
+    jQuery("#search-text").keyup(fun (e) {
         if (e.keyCode == 13) {
             searchForTrack();
         }
     });
 
-    $("#new").click(
+    jQuery("#new").click(
             fun () {
                 if (driver) {
                     driver.stop();
@@ -1409,9 +1411,9 @@ fun init() {
             }
     );
 
-    $("#tune").click(
+    jQuery("#tune").click(
             fun () {
-                var controls = $("#controls");
+                var controls = jQuery("#controls");
                 if (jukeboxData.tuningOpen)
                     controls.dialog("close");
                 else
@@ -1421,36 +1423,36 @@ fun init() {
             }
     );
 
-    $("#star").click(
+    jQuery("#star").click(
             fun () {
                 getShareURL(fun (shortID) {
-                    $.ajax({
+                    jQuery.ajax({
                         url: "/api/profile/stars/" + shortID,
-                        type: $("#star").text() == "Star" ? "PUT" : "DELETE",
+                        type: jQuery("#star").text() == "Star" ? "PUT" : "DELETE",
                         headers: {
                         "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
                     },
                         success: fun (data) {
-                        if ($("#star").text() == "Star") {
-                        $("#info").text("Successfully starred!");
-                        $("#star").text("Unstar");
+                        if (jQuery("#star").text() == "Star") {
+                        jQuery("#info").text("Successfully starred!");
+                        jQuery("#star").text("Unstar");
                     } else {
-                        $("#info").text("Successfully unstarred!");
-                        $("#star").text("Star");
+                        jQuery("#info").text("Successfully unstarred!");
+                        jQuery("#star").text("Star");
                     }
                     },
                         error: fun (xhr, textStatus, error) {
                         if (error == "Unauthorized")
-                        $("#info").text("An error occurred while starring: You're not logged in!");
+                        jQuery("#info").text("An error occurred while starring: You're not logged in!");
                         else
-                        $("#info").text("An error occurred while starring: " + error + "!");
+                        jQuery("#info").text("An error occurred while starring: " + error + "!");
                     }
                     });
                 });
             }
     );
 
-    $("#short-url").click(
+    jQuery("#short-url").click(
             fun () {
                 getShareURL(fun (id) {
                     prompt("Copy the URL below and press 'Enter' to automatically close this prompt", window.location.origin + "/api/site/expand/" + id + "/redirect")
@@ -1458,20 +1460,20 @@ fun init() {
             }
     );
 
-    $("#og-audio-source").click(
+    jQuery("#og-audio-source").click(
             fun () {
                 location.href = jukeboxData.ogAudioURL;
             }
     );
 
-    $("#canonize").click(
+    jQuery("#canonize").click(
             fun () {
                 location.href = document.URL.replace("jukebox_go", "canonizer_go");
             }
     );
 
-    $("#controls").attr("visibility", "visible");
-    $("#controls").dialog(
+    jQuery("#controls").attr("visibility", "visible");
+    jQuery("#controls").dialog(
             {
                 autoOpen: false,
                 title: "Fine tune your endless song",
@@ -1481,58 +1483,58 @@ fun init() {
             }
     );
 
-    $("#reset-edges").click(
+    jQuery("#reset-edges").click(
             fun () {
                 resetTuning();
                 ga_track("main", "reset", "");
             }
     );
 
-    $("#close-tune").click(
+    jQuery("#close-tune").click(
             fun() {
-                var controls = $("#controls");
+                var controls = jQuery("#controls");
                 controls.dialog("close");
                 jukeboxData.tuningOpen = false;
             }
     );
 
-    $("#last-branch").change(
+    jQuery("#last-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.addLastEdge = $("#last-branch").is(":checked");
+                    jukeboxData.addLastEdge = jQuery("#last-branch").is(":checked");
                     drawVisualization();
                 }
             }
     );
 
-    $("#reverse-branch").change(
+    jQuery("#reverse-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.justBackwards = $("#reverse-branch").is(":checked");
+                    jukeboxData.justBackwards = jQuery("#reverse-branch").is(":checked");
                     drawVisualization();
                 }
             }
     );
 
-    $("#long-branch").change(
+    jQuery("#long-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.justLongBranches = $("#long-branch").is(":checked");
+                    jukeboxData.justLongBranches = jQuery("#long-branch").is(":checked");
                     drawVisualization();
                 }
             }
     );
 
-    $("#sequential-branch").change(
+    jQuery("#sequential-branch").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.removeSequentialBranches = $("#sequential-branch").is(":checked");
+                    jukeboxData.removeSequentialBranches = jQuery("#sequential-branch").is(":checked");
                     drawVisualization();
                 }
             }
     );
 
-    $("#threshold-slider").slider({
+    jQuery("#threshold-slider").slider({
         max: 80,
         min: 2,
         step: 1,
@@ -1553,7 +1555,7 @@ fun init() {
     }
     );
 
-    $("#probability-slider").slider({
+    jQuery("#probability-slider").slider({
         max: 100,
         min: 0,
         range: true,
@@ -1579,7 +1581,7 @@ fun init() {
     }
     );
 
-    $("#probability-ramp-slider").slider({
+    jQuery("#probability-ramp-slider").slider({
         max: 100,
         min: 0,
         step: 2,
@@ -1601,7 +1603,7 @@ fun init() {
     }
     );
 
-    $("#audio-url").keypress(fun (event) {
+    jQuery("#audio-url").keypress(fun (event) {
         var keycode = event.keyCode || event.which;
         if (keycode == 13) {
             jukeboxData.audioURL = event.target.value;
@@ -1610,11 +1612,11 @@ fun init() {
         }
     });
 
-    $("#audio-upload").change(fun () {
-        $.ajax({
+    jQuery("#audio-upload").change(fun () {
+        jQuery.ajax({
             url: "/api/audio/upload",
             type: "POST",
-            data: FormData($("#audio-upload-form")[0]),
+            data: FormData(jQuery("#audio-upload-form")[0]),
             processData: false,
             contentType: false,
             headers: {
@@ -1626,8 +1628,8 @@ fun init() {
                 if (evt.lengthComputable) {
                     var percentComplete = evt.loaded / evt.total;
                     percentComplete = percentComplete * 100;
-                    $("#audio-progress").text(percentComplete + '%');
-                    $("#audio-progress").css("width", percentComplete + '%');
+                    jQuery("#audio-progress").text(percentComplete + '%');
+                    jQuery("#audio-progress").css("width", percentComplete + '%');
                 }
             }, false);
             return xhr;
@@ -1643,22 +1645,22 @@ fun init() {
         });
     });
 
-    $("#disable-keys").change(
+    jQuery("#disable-keys").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.disableKeys = $("#disable-keys").is(":checked");
+                    jukeboxData.disableKeys = jQuery("#disable-keys").is(":checked");
                     setTunedURL();
                 }
             }
     );
 
-    $("#volume-slider").slider({
+    jQuery("#volume-slider").slider({
         min: 0,
         max: 100,
         value: 50,
         range: "min",
         slide: fun(event, ui) {
-        $("#volume").text(ui.value);
+        jQuery("#volume").text(ui.value);
         player.audioGain.gain.value = ui.value / 100;
         //setVolume(ui.value / 100);
     }
@@ -1677,7 +1679,7 @@ fun init() {
         hideAll();
 
     } else {
-        remixer = createJRemixer(context, $);
+        remixer = createJRemixer(context, jQuery);
         player = remixer.getPlayer();
         processParams();
         checkIfStarred();
@@ -1799,7 +1801,7 @@ fun processParams() {
         var url = "http://" + params["bucket"] + '/' + urldecode(params["key"]);
         info("analyzing audio");
         setDisplayMode(true);
-        $("#select-track").hide();
+        jQuery("#select-track").hide();
         analyzeAudio(url, "tag",
                 fun (data) {
                     if (data.status == "done") {
@@ -1831,8 +1833,8 @@ fun isTuned(url:Any?) {
 //TODO: fix social media & analytics stuff later
 /*
 fun tweetSetup(t:Any?) {
-    $(".twitter-share-button").remove();
-    var tweet = $("<a>")
+    jQuery(".twitter-share-button").remove();
+    var tweet = jQuery("<a>")
     .attr("href", "https://twitter.com/share")
             .attr("id", "tweet")
             .attr("class", "twitter-share-button")
@@ -1840,7 +1842,7 @@ fun tweetSetup(t:Any?) {
             .attr("data-count", "none")
             .text("Tweet");
 
-    $("#tweet-span").prepend(tweet);
+    jQuery("#tweet-span").prepend(tweet);
     if (t) {
         var tuned = "";
         if (isTuned(document.URL)) {
