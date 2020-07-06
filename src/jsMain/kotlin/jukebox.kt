@@ -1,6 +1,5 @@
-package org.abimon.eternalJukebox
-
 import js.externals.jquery.jQuery
+import kotlin.math.*
 
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has
@@ -78,8 +77,8 @@ private var jukeboxData = object {
     var lastBranchPoint = 0    // last beat with a good branch
     var longestReach = 0.0       // longest looping secstion
         set(newValue) {
-            jQuery("#loop-length-percent").text(Math.round(newValue));
-            var loopBeats = Math.round(newValue * totalBeats / 100);
+            jQuery("#loop-length-percent").text(round(newValue));
+            var loopBeats = round(newValue * totalBeats / 100);
             jQuery("#loop-length-beats").text(loopBeats);
             jQuery("#total-beats").text(totalBeats);
         }
@@ -110,7 +109,7 @@ private var jukeboxData = object {
 
     var minRandomBranchChance = 0.0
         set(newValue) {
-            jQuery("#min-prob").text(Math.round(newValue * 100));
+            jQuery("#min-prob").text(round(newValue * 100));
             jQuery("#probability-slider").slider("values",
                     [newValue * 100, maxRandomBranchChance * 100]);
             curRandomBranchChance = clamp(curRandomBranchChance,
@@ -118,7 +117,7 @@ private var jukeboxData = object {
         }
     var maxRandomBranchChance = 0.0
         set(newValue) {
-            jQuery("#max-prob").text(Math.round(newValue * 100));
+            jQuery("#max-prob").text(round(newValue * 100));
             jQuery("#probability-slider").slider("values",
                     [minRandomBranchChance * 100, newValue * 100]);
             curRandomBranchChance = clamp(curRandomBranchChance,
@@ -126,18 +125,18 @@ private var jukeboxData = object {
         }
     var randomBranchChanceDelta = 0.0
         set(newValue) {
-            var `val` = Math.round(map_value_to_percent(newValue,
+            var `val` = round(map_value_to_percent(newValue,
                     minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
             jQuery("#ramp-speed").text(`val`);
             jQuery("#probabiltiy-ramp-slider").slider("value", `val`);
         }
     var curRandomBranchChance = 0.0
         set(newValue) {
-            jQuery("#branch-chance").text(Math.round(newValue * 100));
+            jQuery("#branch-chance").text(round(newValue * 100));
         }
     var lastThreshold = 0.0
         set(newValue) {
-            jQuery("#last-threshold").text(Math.round(newValue));
+            jQuery("#last-threshold").text(round(newValue));
         }
 
     var tuningOpen = false
@@ -201,11 +200,11 @@ fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     var qlist = track.analysis[qtype];
     var n = qlist.length;
     var R = radius;
-    var alpha = Math.PI * 2 / n;
-    var perimeter = 2 * n * R * Math.sin(alpha / 2);
+    var alpha = PI * 2 / n;
+    var perimeter = 2 * n * R * sin(alpha / 2);
     var a = perimeter / n;
     var width = a * 20;
-    var angleOffset = -Math.PI / 2;
+    var angleOffset = -PI / 2;
     // var angleOffset = 0;
 
     if (width > maxWidth) {
@@ -219,8 +218,8 @@ fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     var angle = angleOffset;
     for (i in 0 until qlist.length) {
         var tile = createNewTile(i, qlist[i], a, width);
-        var y = y_padding + R + R * Math.sin(angle);
-        var x = x_padding + R + R * Math.cos(angle);
+        var y = y_padding + R + R * sin(angle);
+        var x = x_padding + R + R * cos(angle);
         tile.move(x, y);
         tile.rotate(angle);
         tiles.add(tile);
@@ -240,13 +239,13 @@ fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
     for (i in 0 until tiles.size) {
         var startAngle = alpha * i + angleOffset;
         var tile = tiles[i];
-        var y1 = y_padding + R + R * Math.sin(startAngle) + yoffset;
-        var x1 = x_padding + R + R * Math.cos(startAngle) + xoffset;
+        var y1 = y_padding + R + R * sin(startAngle) + yoffset;
+        var x1 = x_padding + R + R * cos(startAngle) + xoffset;
 
         for (j in 0 until tile.q.neighbors.length) {
             var destAngle = alpha * tile.q.neighbors[j].dest.which + angleOffset;
-            var y2 = y_padding + R + R * Math.sin(destAngle) + yoffset;
-            var x2 = x_padding + R + R * Math.cos(destAngle) + xoffset;
+            var y2 = y_padding + R + R * sin(destAngle) + yoffset;
+            var x2 = x_padding + R + R * cos(destAngle) + xoffset;
 
             var path = 'M' + x1 + ' ' + y1 + center + x2 + ' ' + y2;
             var curve = paper.path(path);
@@ -511,7 +510,7 @@ fun fetchSignature() {
 fun calculateDim(numTiles:Any?, totalWidth:Any?, totalHeight:Any?) {
     var area = totalWidth * totalHeight;
     var tArea = area / (1.2 * numTiles);
-    var dim = Math.floor(Math.sqrt(tArea));
+    var dim = floor(sqrt(tArea));
     return dim;
 }
 
@@ -526,10 +525,10 @@ var confidenceWeight = 1
 fun get_seg_distances(seg1:Any?, seg2:Any?) {
     var timbre = seg_distance(seg1, seg2, "timbre", true);
     var pitch = seg_distance(seg1, seg2, "pitches");
-    var sloudStart = Math.abs(seg1.loudness_start - seg2.loudness_start);
-    var sloudMax = Math.abs(seg1.loudness_max - seg2.loudness_max);
-    var duration = Math.abs(seg1.duration - seg2.duration);
-    var confidence = Math.abs(seg1.confidence - seg2.confidence);
+    var sloudStart = abs(seg1.loudness_start - seg2.loudness_start);
+    var sloudMax = abs(seg1.loudness_max - seg2.loudness_max);
+    var duration = abs(seg1.duration - seg2.duration);
+    var confidence = abs(seg1.confidence - seg2.confidence);
     var distance = timbre * timbreWeight + pitch * pitchWeight +
             sloudStart * loudStartWeight + sloudMax * loudMaxWeight +
             duration * durationWeight + confidence * confidenceWeight;
@@ -686,9 +685,9 @@ fun setTunedURL() {
 
         if (addBranchParams) {
             p += "&bp=" + [
-                Math.round(map_value_to_percent(jukeboxData.minRandomBranchChance, 0, 1)),
-                Math.round(map_value_to_percent(jukeboxData.maxRandomBranchChance, 0, 1)),
-                Math.round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
+                round(map_value_to_percent(jukeboxData.minRandomBranchChance, 0, 1)),
+                round(map_value_to_percent(jukeboxData.maxRandomBranchChance, 0, 1)),
+                round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
                         minRandomBranchChanceDelta, maxRandomBranchChanceDelta))].join(',')
         }
 
@@ -825,7 +824,7 @@ fun calculateReachability(type:Any?) {
     if (false) {
         for (qi in 0 until quanta.length) {
             var q = quanta[qi];
-            console.log(q.which, q.reach, Math.round(q.reach * 100 / quanta.length));
+            console.log(q.which, q.reach, round(q.reach * 100 / quanta.length));
         }
     }
     // console.log('reachability map converged after ' + iter + ' iterations. total ' + quanta.length);
@@ -1031,7 +1030,7 @@ fun extractNearestNeighbors(q:Any?, maxThreshold:Any?) {
             continue;
         }
 
-        if (jukeboxData.justLongBranches && Math.abs(neighbor.dest.which - q.which) < jukeboxData.minLongBranch) {
+        if (jukeboxData.justLongBranches && abs(neighbor.dest.which - q.which) < jukeboxData.minLongBranch) {
             continue;
         }
 
@@ -1059,7 +1058,7 @@ fun calcBranchInfo(type:Any?) {
         for (i in 0 until q.neighbors.length) {
             var neighbor = q.neighbors[i];
             var distance = neighbor.distance;
-            var bucket = Math.round(distance / 10);
+            var bucket = round(distance / 10);
             if (!(bucket in histogram)) {
                 histogram[bucket] = 0;
             }
@@ -1078,7 +1077,7 @@ fun euclidean_distance(v1:Any?, v2:Any?) {
         var delta = v2[i] - v1[i];
         sum += delta * delta;
     }
-    return Math.sqrt(sum);
+    return sqrt(sum);
 }
 
 fun weighted_euclidean_distance(v1:Any?, v2:Any?) {
@@ -1091,12 +1090,12 @@ fun weighted_euclidean_distance(v1:Any?, v2:Any?) {
         var weight = 1.0;
         sum += delta * delta * weight;
     }
-    return Math.sqrt(sum);
+    return sqrt(sum);
 }
 
 fun redrawTiles() {
     _.each(jukeboxData.tiles, fun (tile) {
-        var newWidth = Math.round((minTileWidth + tile.playCount * growthPerPlay) * curGrowFactor);
+        var newWidth = round((minTileWidth + tile.playCount * growthPerPlay) * curGrowFactor);
         if (newWidth < 1) {
             newWidth = 1;
         }
@@ -1114,7 +1113,7 @@ fun highlightCurves(tile:Any?, enable:Any?, didJump:Any?) {
     }
 }
 
-fun getQuantumColor(q:Any?) {
+fun getQuantumColor(q:Any?):String {
     if (isSegment(q)) {
         return getSegmentColor(q);
     } else {
@@ -1183,7 +1182,7 @@ fun getSegmentColor(seg:Any?) {
 }
 
 fun convert(value:Any?) {
-    var integer = Math.round(value);
+    var integer = round(value);
     var str = Number(integer).toString(16);
     return str.length == 1 ? "0" + str : str;
 };
@@ -1561,8 +1560,8 @@ fun init() {
         range: true,
         step: 1,
         values: [
-        Math.round(defaultMinRandomBranchChance * 100),
-        Math.round(defaultMaxRandomBranchChance * 100)
+        round(defaultMinRandomBranchChance * 100),
+        round(defaultMaxRandomBranchChance * 100)
         ],
         change: fun (event, ui) {
         if (event.originalEvent) {
@@ -1697,10 +1696,10 @@ fun getAudioContext() {
 }
 
 fun secondsToTime(secs:Any?) {
-    secs = Math.floor(secs);
-    var hours = Math.floor(secs / 3600);
+    secs = floor(secs);
+    var hours = floor(secs / 3600);
     secs -= hours * 3600;
-    var mins = Math.floor(secs / 60);
+    var mins = floor(secs / 60);
     secs -= mins * 60;
 
     if (hours < 10) {
