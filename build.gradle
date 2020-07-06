@@ -14,7 +14,6 @@ repositories {
     maven { url "https://dl.bintray.com/kotlin/ktor" }
     mavenCentral()
     maven { url "https://jitpack.io" }
-    maven { url "https://kotlin.bintray.com/js-externals" }
     maven { url "https://maven.abimon.org" }
 }
 def ktor_version = "1.1.3"
@@ -98,7 +97,9 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin("stdlib-js")
-                implementation "kotlin.js.externals:kotlin-js-jquery:2.0.0-0"
+                //in the future, this will be how type annotations are automatically generated for JS dependencies using Dukat.
+                //But right now (for Kotlin Multiplatform 1.3.72 on 6 Jun 2020), it's broken
+                //implementation npm("jquery", "1.12.4")
             }
         }
         jsTest {
