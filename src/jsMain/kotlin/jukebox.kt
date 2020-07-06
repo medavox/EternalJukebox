@@ -1,5 +1,6 @@
 import kotlin.math.*
-import externaljs.*
+import externaljs.jquery.*
+import externaljs.raphael.global.Raphael
 
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has
@@ -152,7 +153,7 @@ fun info(s:Any) {
 }
 
 
-fun error(s:Any) {
+fun error(s:String) {
     if (s.length == 0) {
         jQuery("#error").hide();
     } else {
@@ -191,27 +192,27 @@ fun stop() {
 
 fun createTiles(qtype:Any?) = createTileCircle(qtype, 250)
 
-fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
+fun createTileCircle(qtype:Any?, radius:Double):MutableList<Any?> {
     var start = now();
     var y_padding = 90;
     var x_padding = 200;
     var maxWidth = 90;
     var tiles = mutableListOf<Any?>();
     var qlist = track.analysis[qtype];
-    var n = qlist.length;
+    var n:Int = qlist.length
     var R = radius;
     var alpha = PI * 2 / n;
-    var perimeter = 2 * n * R * sin(alpha / 2);
+    var perimeter:Double = 2 * n * R * sin(alpha / 2)
     var a = perimeter / n;
     var width = a * 20;
     var angleOffset = -PI / 2;
     // var angleOffset = 0;
 
     if (width > maxWidth) {
-        width = maxWidth;
+        width = maxWidth.toDouble()
     }
 
-    width = minTileWidth;
+    width = minTileWidth.toDouble()
 
     paper.clear();
 
@@ -247,7 +248,7 @@ fun createTileCircle(qtype:Any?, radius:Any?):MutableList<Any?> {
             var y2 = y_padding + R + R * sin(destAngle) + yoffset;
             var x2 = x_padding + R + R * cos(destAngle) + xoffset;
 
-            var path = 'M' + x1 + ' ' + y1 + center + x2 + ' ' + y2;
+            var path = "M" + x1 + " " + y1 + center + x2 + " " + y2
             var curve = paper.path(path);
             curve.edge = tile.q.neighbors[j];
             addCurveClickHandler(curve);
@@ -414,7 +415,7 @@ fun listSong(r:Any?) {
 
 fun listSongAsAnchor(r:Any?) {
     var title = getTitle(r.title, r.artist, r.url);
-    var item = jQuery("<li>").html("<a href="index.html?id=" + r.id + "\">" + title + "</a>");
+    var item = jQuery("<li>").html("<a href=\"index.html?id=\"" + r.id + "\">" + title + "</a>")
     return item;
 }
 
@@ -507,7 +508,7 @@ fun fetchSignature() {
     });
 }
 
-fun calculateDim(numTiles:Any?, totalWidth:Any?, totalHeight:Any?) {
+fun calculateDim(numTiles:Int, totalWidth:Double, totalHeight:Double):Double {
     var area = totalWidth * totalHeight;
     var tArea = area / (1.2 * numTiles);
     var dim = floor(sqrt(tArea));
@@ -535,7 +536,7 @@ fun get_seg_distances(seg1:Any?, seg2:Any?) {
     return distance;
 }
 
-fun dynamicCalculateNearestNeighbors(type:Any?) {
+fun dynamicCalculateNearestNeighbors(type:Any?):Int {
     var count = 0;
     var targetBranchCount = track.analysis[type].length / 6;
 
@@ -710,7 +711,7 @@ fun now() {
 // avoid short branching songs like:
 // http://labs.echonest.com/Uploader/index.html?trid=TRVHPII13AFF43D495
 
-fun longestBackwardBranch(type:Any?) {
+fun longestBackwardBranch(type:Any?):Double {
     var longest = 0
     var quanta = track.analysis[type];
     for (i in 0 until quanta.length) {
@@ -724,7 +725,7 @@ fun longestBackwardBranch(type:Any?) {
             }
         }
     }
-    var lbb = longest * 100 / quanta.length;
+    var lbb:Double = longest * 100 / (quanta.length as Double)
     return lbb;
 }
 
@@ -752,7 +753,7 @@ fun insertBestBackwardBranch(type:Any?, threshold:Any?, maxThreshold:Any?) {
         }
     }
 
-    if (branches.length == 0) {
+    if (branches.size == 0) {
         return;
     }
 
@@ -830,21 +831,21 @@ fun calculateReachability(type:Any?) {
     // console.log('reachability map converged after ' + iter + ' iterations. total ' + quanta.length);
 }
 
-fun map_percent_to_range(percent:Any?, min:Any?, max:Any?) {
-    percent = clamp(percent, 0, 100);
+fun map_percent_to_range(percent:Double, min:Double, max:Double) {
+    val percent2 = clamp(percent, 0, 100)
     return (max - min) * percent / 100. + min;
 }
 
 fun map_value_to_percent(value:Any?, min:Any?, max:Any?) {
-    value = clamp(value, min, max);
+    val value2 = clamp(value, min, max)
     return 100 * (value - min) / (max - min);
 }
 
-fun clamp(`val`:Any?, min:Any?, max:Any?) {
-    return `val` < min ? min : `val` > max ? max : `val`;
+fun clamp(value:Double, min:Double, max:Double):Double {
+    return if(value < min) min else if(value > max) max else value
 }
 
-fun findBestLastBeat(type:Any?) {
+fun findBestLastBeat(type:Any?):Int {
     var reachThreshold = 50;
     var quanta = track.analysis[type];
     var longest = 0;
@@ -891,7 +892,7 @@ fun filterOutBadBranches(type:Any?, lastIndex:Int) {
     }
 }
 
-fun hasSequentialBranch(q:Any?, neighbor:Any?) {
+fun hasSequentialBranch(q:Any?, neighbor:Any?):Boolean {
     if (q.which == jukeboxData.lastBranchPoint) {
         return false;
     }
@@ -1016,7 +1017,7 @@ fun collectNearestNeighbors(type:Any?, maxThreshold:Any?):Int {
     return branchingCount;
 }
 
-fun extractNearestNeighbors(q:Any?, maxThreshold:Any?) {
+fun extractNearestNeighbors(q:Any?, maxThreshold:Any?):List<Any?> {
     var neighbors = mutableListOf<Any?>();
 
     for (i in 0 until q.all_neighbors.length) {
@@ -1042,11 +1043,11 @@ fun extractNearestNeighbors(q:Any?, maxThreshold:Any?) {
     return neighbors;
 }
 
-fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Any?) {
-    if (weighted != null) {
-        return weighted_euclidean_distance(seg1[field], seg2[field]);
+fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Boolean=false) {
+    return if (weighted) {
+        weighted_euclidean_distance(seg1[field], seg2[field]);
     } else {
-        return euclidean_distance(seg1[field], seg2[field]);
+        euclidean_distance(seg1[field], seg2[field]);
     }
 }
 
@@ -1070,7 +1071,7 @@ fun calcBranchInfo(type:Any?) {
     console.log("total branches", total);
 }
 
-fun euclidean_distance(v1:Any?, v2:Any?) {
+fun euclidean_distance(v1:Any?, v2:Any?):Double {
     var sum = 0;
 
     for (i in 0 until v1.length) {
@@ -1094,13 +1095,13 @@ fun weighted_euclidean_distance(v1:Any?, v2:Any?) {
 }
 
 fun redrawTiles() {
-    _.each(jukeboxData.tiles, fun (tile) {
+    jukeboxData.tiles.forEach { tile ->
         var newWidth = round((minTileWidth + tile.playCount * growthPerPlay) * curGrowFactor);
         if (newWidth < 1) {
             newWidth = 1;
         }
         tile.rect.attr("width", newWidth);
-    });
+    }
 }
 
 fun highlightCurves(tile:Any?, enable:Any?, didJump:Any?) {
@@ -1151,8 +1152,8 @@ fun createTilePanel(which:Any?) {
 }
 
 fun normalizeColor() {
-    cmin = listOf(100, 100, 100);
-    cmax = listOf(-100, -100, -100);
+    val cmin = mutableListOf(100, 100, 100)
+    val cmax = mutableListOf(-100, -100, -100)
 
     var qlist = track.analysis.segments;
     for (i in 0 until qlist.length) {
@@ -1181,13 +1182,13 @@ fun getSegmentColor(seg:Any?) {
     //return to_rgb(results[0], results[1], results[2]);
 }
 
-fun convert(value:Any?) {
+fun convert(value:Double):String {
     var integer = round(value);
     var str = Number(integer).toString(16);
-    return str.length == 1 ? "0" + str : str;
+    return if(str.length == 1) "0" + str else str
 };
 
-fun to_rgb(r:Float, g:Float, b:Float):String {
+fun to_rgb(r:Double, g:Double, b:Double):String {
     return "#" + convert(r * 255) + convert(g * 255) + convert(b * 255);
 }
 
