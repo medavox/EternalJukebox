@@ -3,41 +3,59 @@
 The source files for the EternalJukebox, a rehosting of the Infinite Jukebox.  
 This repo contains everything you need to host the EternalJukebox on your own server!  
 
-You can visit the official site [here](https://eternalbox.dev/), in case you want to mess around with it without doing all the hard stuff.  
+You can visit the official site [here](https://eternalbox.dev/), 
+in case you want to mess around with it without doing all the hard stuff.  
 
-# Documentation
+## External Dependencies Which Require Manual Setup
 
-## Prerequisites
+* Java 8 or higher
+* [Youtube-dl](https://youtube-dl.org/)
+* [ffmpeg](https://ffmpeg.org/) - Easily available in most Linux package managers 
+* [NodeJs](https://nodejs.org/en/) - for running Dukat, see below. This project uses v12.18.2 as of writing. 
+  I used a prebuilt package from [here](https://github.com/nodesource/distributions).
+* [Dukat](https://github.com/kotlin/dukat) - converts TypeScript type annotations for JavaScript into Kotlin external function declarations.
+  TLDR lets you use jQuery and other common js dependencies in Kotlin/JS in a well-typed way.
+  Once you have Nodejs installed, doing `npm -g install dukat` should suffice.
+* [type definitions for javascript dependencies](https://github.com/DefinitelyTyped/DefinitelyTyped) 
+  You don't need the whole repo; just download the definition files that are specific to the js dependencies being used. 
+  Current JavaScript npm dependencies are:
+    - [jQuery version 1](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/jquery/v1/index.d.ts)
+    - [jQueryUI](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/jqueryui/index.d.ts), 
+    
+  but this is subject to change.
 
-### Java:
-##### Windows
-Download and install Java from https://www.java.com/en/download/  
-##### Debian-based Linux distributions
-For Ubuntu or Debian-based distributions execute `sudo apt-get install default-jre` in the terminal   
-##### Fedora and CentOS
-There is a tutorial for installing java on Fedora and CentOS at https://www.digitalocean.com/community/tutorials/how-to-install-java-on-centos-and-fedora   
+## Building
 
-### Youtube-dl:
-##### Windows
-Download the .exe at https://yt-dl.org/latest/youtube-dl.exe and place it in `C:\Windows\`, or in another folder on the PATH.
-##### Linux
-Use these commands in the terminal to install youtube-dl on Linux:  
-`sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl`   
-`sudo chmod a+rx /usr/local/bin/youtube-dl`
+You'll need a [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), 
+and [Jekyll](https://jekyllrb.com/).
 
-### ffmpeg:
-##### Windows
-Download the exe from https://ffmpeg.zeranoe.com/builds/ and place it in `C:\Windows\`, or in another folder on teh PATH.
-##### Linux
-ffmpeg is available to download in most distributions using `sudo apt-get install ffmpeg` or equivalent
+1. Get these project files:
 
-## Getting the project files:
-The whole process of obtaining project files is much easier now, as the build process is streamlined through Jenkins.
+Grab a [stable release](https://github.com/medavox/EternalJukebox/releases)
 
-The project site is over [here](https://jenkins.abimon.org/job/EternalJukebox/), and contains the individual files to download, or an all-in-one zip for all the files. Alternatively, the files can be found over at a permanent server [here](https://abimon.org/eternal_jukebox)
+or get the most recent, bleeding-edge version (no guarantees about stability!)
+
+```shell script
+git clone git@github.com:medavox/EternalJukebox.git
+```
+
+or
+```shell script
+git clone https://github.com/medavox/EternalJukebox.git
+```
+
+change directory into the cloned git repo
+
+From there, building in Gradle is simple; just run `./gradlew clean shadowJar` from the project file directory.
+That should produce a jar file in `build/libs` that will work for you.
+
+In addition, you'll need to build the Jekyll webpages, which can be done by running `jekyll build --source _web --destination web`
+
 
 ## Configuring
-First thing to do is create a new file called either `config.yaml` or `config.json` (YAML tends to be easier to write, but takes up slightly more space), then open it with notepad/notepad++ on Windows and whatever text editor you like on Linux (for example nano: `nano config.json`)
+First thing to do is create a new file called either `config.yaml` or `config.json` 
+(YAML tends to be easier to write, but takes up slightly more space), 
+then open it with notepad/notepad++ on Windows and whatever text editor you like on Linux (for example nano: `nano config.json`)
 
 Now you should go to https://developer.spotify.com/my-applications/ and log in to your spotify account.  
 Then click the "Create an app" button and a new page should popup.   
@@ -60,10 +78,3 @@ If everything went right it should say `Listening at http://0.0.0.0:11037`
 you should now be able to connect to it with a browser through http://localhost:11037  
 
 Congrats you did it!  
-
-## Manually Building
-This is not recommended unless you're making some modifications, and as such should only be performed by more advanced users
-
-You'll need to obtain a copy of [Gradle](https://gradle.org/install/), likely a [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), and [Jekyll](https://jekyllrb.com/). You'll also need the project files in some capacity, be it `git clone` or downloading the archive from GitHub.
-
-From there, building in Gradle is simple; just run `gradle clean shadowJar` from the project file directory. That should produce a jar file in `build/libs` that will work for you. In addition, you'll need to build the Jekyll webpages, which can be done by running `jekyll build --source _web --destination web`
