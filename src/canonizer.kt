@@ -890,11 +890,11 @@
         var cursorWidth = 8;
         if (masterCursor === null) {
             masterCursor = paper.rect(0, H - vPad, cursorWidth, vPad / 2);
-            //masterCursor.attr("stroke", masterColor);
+            //getMasterCursor.attr("stroke", getMasterColor);
             masterCursor.attr("fill", masterColor);
 
             otherCursor = paper.rect(0, H - vPad / 2 - 1, cursorWidth, vPad / 2);
-            //otherCursor.attr("stroke", otherColor);
+            //getOtherCursor.attr("stroke", getOtherColor);
             otherCursor.attr("fill", otherColor);
         }
         var TW = W - hPad;
