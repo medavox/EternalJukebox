@@ -1,5 +1,5 @@
-import js.externals.jquery.jQuery
 import kotlin.math.*
+import externaljs.*
 
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has

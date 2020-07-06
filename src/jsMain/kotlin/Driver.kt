@@ -1,5 +1,4 @@
-package org.abimon.eternalJukebox
-
+import externaljs.*
 class Driver(player:Any?) {
     var curTile = null;
     var curOp = null;

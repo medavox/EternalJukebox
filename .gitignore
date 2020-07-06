@@ -58,3 +58,6 @@ working/
 !/src/jvmMain/kotlin/org/abimon/eternalJukebox/data/audio
 /data/
 web
+
+#ignore generated kotlin headers for javascript libraries
+src/jsMain/kotlin/externaljs/

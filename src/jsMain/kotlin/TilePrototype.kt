@@ -1,4 +1,4 @@
-package org.abimon.eternalJukebox
+import externaljs.*
 
 class TilePrototype {
 

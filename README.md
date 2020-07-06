@@ -24,6 +24,21 @@ in case you want to mess around with it without doing all the hard stuff.
     
   but this is subject to change.
 
+First you need to get the type headers, so that EternalJukebox knows what types are returned by its Javascript libraries:
+
+```shell script
+
+mkdir -p src/jsMain/kotlin/externaljs # create the directory for the headers
+cd src/jsMain/kotlin/externaljs
+
+#download typescript headers from the DefinitelyTyped repo
+curl http://https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/jquery/v1/index.d.ts -o jquery.d.ts 
+curl https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/jqueryui/index.d.ts -o jqueryui.d.ts
+
+#generate Kotlin external fun declaration headers from these, with the package name 'externaljs' (to match the dir)
+dukat -p externaljs jquery.d.ts jqueryui.d.ts
+``` 
+
 ## Building
 
 You'll need a [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), 
