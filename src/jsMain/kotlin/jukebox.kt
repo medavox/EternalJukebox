@@ -1,6 +1,14 @@
 import kotlin.math.*
 import externaljs.jquery.*
+import externaljs.jquery.JQueryUI.DialogOptions
+import externaljs.jquery.JQueryUI.SliderOptions
+import externaljs.jquery.JQueryUI.SliderUIParams
 import externaljs.raphael.global.Raphael
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.url.URL
+import org.w3c.xhr.FormData
+import kotlin.browser.*
+import kotlin.math.round
 
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has
@@ -38,7 +46,8 @@ var growthPerPlay = 10;
 var curGrowFactor = 1;
 
 
-private var jukeboxData = object {
+
+internal class jukeboxData { companion object {
     var infiniteMode = true      // if true, allow branching
     var maxBranches = 4        // max branches allowed per beat
     var maxBranchThreshold = 80 // max allowed distance threshold
@@ -46,38 +55,47 @@ private var jukeboxData = object {
     var computedThreshold = 0   // computed best threshold
     var currentThreshold = 0    // current in-use max threshold
         set(newValue) {
+            field = newValue
             jQuery("#threshold").text(newValue);
             jQuery("#threshold-slider").slider("value", newValue);
         }
     var addLastEdge = true      // if true, optimize by adding a good last edge
         set(newValue) {
-            jQuery("#last-branch").attr("checked", newValue);
+            field = newValue
+            jQuery("#last-branch").attr("checked", newValue.toString());
             setTunedURL();
         }
     var justBackwards = false   // if true, only add backward branches
         set(newValue) {
-            jQuery("#reverse-branch").attr("checked", newValue);
+            field = newValue
+            jQuery("#reverse-branch").attr("checked", newValue.toString());
             setTunedURL();
         }
-    var justLongBranches = false// if true, only add long branches
+    var justLongBranches = false
+        // if true, only add long branches
         set(newValue) {
-            jQuery("#long-branch").attr("checked", newValue);
+            field = newValue
+            jQuery("#long-branch").attr("checked", newValue.toString());
             setTunedURL();
         }
-    var removeSequentialBranches = false// if true, remove consecutive branches of the same distance
+    var removeSequentialBranches = false
+        // if true, remove consecutive branches of the same distance
         set(newValue) {
-            jQuery("#sequential-branch").attr("checked", newValue);
+            field = newValue
+            jQuery("#sequential-branch").attr("checked", newValue.toString());
             setTunedURL();
         }
 
     var deletedEdgeCount = 0    // number of edges that have been deleted
         set(newValue) {
+            field = newValue
             jQuery("#deleted-branches").text(newValue);
         }
 
     var lastBranchPoint = 0    // last beat with a good branch
     var longestReach = 0.0       // longest looping secstion
         set(newValue) {
+            field = newValue
             jQuery("#loop-length-percent").text(round(newValue));
             var loopBeats = round(newValue * totalBeats / 100);
             jQuery("#loop-length-beats").text(loopBeats);
@@ -87,10 +105,12 @@ private var jukeboxData = object {
     var beatsPlayed = 0          // total number of beats played
     var totalBeats = 0         // total number of beats in the song
         set(newValue) {
+            field = newValue
             jQuery("#total-beats").text(newValue);
         }
     var branchCount = 0         // total number of active branches
         set(newValue) {
+            field = newValue
             jQuery("#branch-count").text(newValue);
         }
 
@@ -103,29 +123,33 @@ private var jukeboxData = object {
 
     var audioURL = null        // The URL to play audio from; null means default
         set(newValue) {
-            jQuery("#audio-url").val(decodeURIComponent(newValue));
+            field = newValue
+            jQuery("#audio-url").`val`(decodeURIComponent(newValue));
         }
     var trackID = null
     var ogAudioURL = null
 
     var minRandomBranchChance = 0.0
         set(newValue) {
+            field = newValue
             jQuery("#min-prob").text(round(newValue * 100));
             jQuery("#probability-slider").slider("values",
-                    [newValue * 100, maxRandomBranchChance * 100]);
+                    arrayOf<Number>(newValue * 100, maxRandomBranchChance * 100));
             curRandomBranchChance = clamp(curRandomBranchChance,
                     newValue, maxRandomBranchChance);
         }
     var maxRandomBranchChance = 0.0
         set(newValue) {
+            field = newValue
             jQuery("#max-prob").text(round(newValue * 100));
             jQuery("#probability-slider").slider("values",
-                    [minRandomBranchChance * 100, newValue * 100]);
+                    arrayOf<Number>(minRandomBranchChance * 100, newValue * 100));
             curRandomBranchChance = clamp(curRandomBranchChance,
                     minRandomBranchChance, newValue);
         }
     var randomBranchChanceDelta = 0.0
         set(newValue) {
+            field = newValue
             var `val` = round(map_value_to_percent(newValue,
                     minRandomBranchChanceDelta, maxRandomBranchChanceDelta));
             jQuery("#ramp-speed").text(`val`);
@@ -133,22 +157,25 @@ private var jukeboxData = object {
         }
     var curRandomBranchChance = 0.0
         set(newValue) {
+            field = newValue
             jQuery("#branch-chance").text(round(newValue * 100));
         }
     var lastThreshold = 0.0
         set(newValue) {
+            field = newValue
             jQuery("#last-threshold").text(round(newValue));
         }
 
     var tuningOpen = false
     var disableKeys = false
         set(newValue) {
-            jQuery("#disable-keys").attr("checked", newValue);
+            field = newValue
+            jQuery("#disable-keys").attr("checked", newValue.toString());
             setTunedURL();
         }
-}
+}}
 
-fun info(s:Any) {
+fun info(s:String) {
     jQuery("#info").text(s);
 }
 
@@ -162,7 +189,7 @@ fun error(s:String) {
     }
 }
 
-fun setDisplayMode(playMode:Any?) {
+fun setDisplayMode(playMode:Boolean) {
     if (playMode) {
         jQuery("#song-div").hide();
         jQuery("#select-track").hide();
@@ -190,7 +217,7 @@ fun stop() {
     player = remixer.getPlayer();
 }
 
-fun createTiles(qtype:Any?) = createTileCircle(qtype, 250)
+fun createTiles(qtype:Any?) = createTileCircle(qtype, 250.0)
 
 fun createTileCircle(qtype:Any?, radius:Double):MutableList<Any?> {
     var start = now();
@@ -261,7 +288,7 @@ fun createTileCircle(qtype:Any?, radius:Double):MutableList<Any?> {
     return tiles;
 }
 
-fun addCurveClickHandler(curve:Any?) {
+fun addCurveClickHandler(curve:JQuery) {
     curve.click(
             fun () {
                 if (jukeboxData.selectedCurve) {
@@ -271,25 +298,19 @@ fun addCurveClickHandler(curve:Any?) {
                 jukeboxData.selectedCurve = curve;
             });
 
-    curve.mouseover(
-            fun () {
-                highlightCurve(curve, true, false);
-            }
-    );
+    curve.mouseover{ highlightCurve(curve, true, false) }
 
-    curve.mouseout(
-            fun () {
-                if (curve != jukeboxData.selectedCurve) {
-                    highlightCurve(curve, false, false);
-                }
-            }
-    );
+    curve.mouseout {
+        if (curve != jukeboxData.selectedCurve) {
+            highlightCurve(curve, false, false);
+        }
+    }
 }
 
-fun highlightCurve(curve:Any?, enable:Any?, jump:Any?) {
-    if (curve) {
+fun highlightCurve(curve:JQuery?, enable:Boolean, jump:Boolean) {
+    if (curve != null) {
         if (enable) {
-            var color = jump ? jumpHighlightColor : highlightColor;
+            var color = if(jump) jumpHighlightColor else highlightColor;
             curve.attr("stroke-width", 4);
             curve.attr("stroke", color);
             curve.attr("stroke-opacity", 1.0);
@@ -304,7 +325,7 @@ fun highlightCurve(curve:Any?, enable:Any?, jump:Any?) {
     }
 }
 
-fun selectCurve(curve:Any?) {
+fun selectCurve(curve:JQuery) {
     curve.attr("stroke-width", 6);
     curve.attr("stroke", selectColor);
     curve.attr("stroke-opacity", 1.0);
@@ -399,7 +420,7 @@ fun gotTheAnalysis(profile:Any?) {
 }
 
 
-fun listSong(r:Any?) {
+fun listSong(r:Any?):JQuery? {
     var title = getTitle(r.title, r.artist, null);
     var item = null;
     if (title != null) {
@@ -413,7 +434,7 @@ fun listSong(r:Any?) {
     return item;
 }
 
-fun listSongAsAnchor(r:Any?) {
+fun listSongAsAnchor(r:Any?):JQuery? {
     var title = getTitle(r.title, r.artist, r.url);
     var item = jQuery("<li>").html("<a href=\"index.html?id=\"" + r.id + "\">" + title + "</a>")
     return item;
@@ -458,38 +479,38 @@ fun fetchAnalysis(id:Any?) {
     var url = "/api/analysis/analyse/" + id;
     info("Fetching the analysis");
 
-    jQuery.ajax({
-        url: url,
-        dataType: "json",
-        type: "GET",
-        crossDomain: true,
-        success: fun (data) {
-        gotTheAnalysis(data);
-    },
-        error: fun(xhr, textStatus, error) {
-        info("Sorry, can't find info for that track: " + error)
-    }
+    jQuery.ajax(object:JQueryAjaxSettings{}.apply{
+        url= url
+        dataType= "json"
+        type= "GET"
+        crossDomain= true
+        success= fun (data) {
+            gotTheAnalysis(data);
+        }
+        error= fun(xhr, textStatus, error) {
+            info("Sorry, can't find info for that track: " + error)
+        }
     });
 
-    jQuery.ajax({
-        url: "/api/audio/jukebox/" + id + "/location",
-        dataType: "json",
-        type: "GET",
-        crossDomain: true,
-        success: fun (data) {
-        if(data["url"] == undefined) {
-            jQuery("#og-audio-source").remove();
-        } else {
-            jukeboxData.ogAudioURL = data["url"];
+    jQuery.ajax(object:JQueryAjaxSettings{}.apply{
+        url= "/api/audio/jukebox/" + id + "/location"
+        dataType= "json"
+        type= "GET"
+        crossDomain= true
+        success= fun (data) {
+            if(data["url"] == undefined) {
+                jQuery("#og-audio-source").remove();
+            } else {
+                jukeboxData.ogAudioURL = data["url"];
+            }
         }
-    },
-        error: fun(xhr, textStatus, error) {
-        info("Sorry, can't find info for that track: " + error)
-    }
+        error= fun(xhr, textStatus, error) {
+            info("Sorry, can't find info for that track: " + error)
+        }
     });
 }
 
-fun get_status(data:Any?) {
+fun get_status(data:Any?):String {
     if (data.response.status.code == 0) {
         return data.response.track.status;
     } else {
@@ -502,9 +523,9 @@ fun fetchSignature() {
     jQuery.getJSON(url, {}, fun (data) {
         policy = data.policy;
         signature = data.signature;
-        jQuery("#f-policy").val(data.policy);
-        jQuery("#f-signature").val(data.signature);
-        jQuery("#f-key").val(data.key);
+        jQuery("#f-policy").`val`(data.policy);
+        jQuery("#f-signature").`val`(data.signature);
+        jQuery("#f-key").`val`(data.key);
     });
 }
 
@@ -523,7 +544,7 @@ var loudMaxWeight = 1
 var durationWeight = 100
 var confidenceWeight = 1
 
-fun get_seg_distances(seg1:Any?, seg2:Any?) {
+fun get_seg_distances(seg1:Any?, seg2:Any?):Number {
     var timbre = seg_distance(seg1, seg2, "timbre", true);
     var pitch = seg_distance(seg1, seg2, "pitches");
     var sloudStart = abs(seg1.loudness_start - seg2.loudness_start);
@@ -548,7 +569,8 @@ fun dynamicCalculateNearestNeighbors(type:Any?):Int {
             break;
         }
     }
-    jukeboxData.currentThreshold = jukeboxData.computedThreshold = threshold;
+    jukeboxData.currentThreshold = threshold;
+    jukeboxData.computedThreshold = threshold;
     postProcessNearestNeighbors(type);
     return count;
 }
@@ -573,7 +595,7 @@ fun postProcessNearestNeighbors(type:Any?) {
 }
 
 fun removeDeletedEdges() {
-    for (i in 0 until jukeboxData.deletedEdges.length) {
+    for (i in 0 until jukeboxData.deletedEdges.size) {
         var edgeID = jukeboxData.deletedEdges[i];
         if (edgeID in jukeboxData.allEdges) {
             var edge = jukeboxData.allEdges[edgeID];
@@ -585,7 +607,7 @@ fun removeDeletedEdges() {
 
 fun getAllDeletedEdgeIDs():List<Any> {
     var results = mutableListOf<Any?>();
-    for (i in 0 until jukeboxData.allEdges.length) {
+    for (i in 0 until jukeboxData.allEdges.size) {
         var edge = jukeboxData.allEdges[i];
         if (edge.deleted) {
             results.add(edge.id);
@@ -596,16 +618,16 @@ fun getAllDeletedEdgeIDs():List<Any> {
 
 fun getDeletedEdgeString() {
     var ids = getAllDeletedEdgeIDs();
-    if (ids.length > 0) {
+    if (ids.size > 0) {
         return "&d=" + ids.join(',');
     } else {
         return "";
     }
 }
 
-fun calculateNearestNeighbors(type:Any?, threshold:Any?) {
+fun calculateNearestNeighbors(type:Any?, threshold:Any?):Int {
     precalculateNearestNeighbors(type, jukeboxData.maxBranches, jukeboxData.maxBranchThreshold);
-    count = collectNearestNeighbors(type, threshold);
+    val count = collectNearestNeighbors(type, threshold);
     postProcessNearestNeighbors(type, threshold);
     return count;
 }
@@ -633,7 +655,7 @@ fun resetTuning() {
 
 fun undeleteAllEdges() {
     jukeboxData.deletedEdgeCount = 0;
-    for (i in 0 until jukeboxData.allEdges.length) {
+    for (i in 0 until jukeboxData.allEdges.size) {
         var edge = jukeboxData.allEdges[i];
         if (edge.deleted) {
             edge.deleted = false;
@@ -685,11 +707,11 @@ fun setTunedURL() {
         }
 
         if (addBranchParams) {
-            p += "&bp=" + [
+            p += "&bp=" + arrayOf(
                 round(map_value_to_percent(jukeboxData.minRandomBranchChance, 0, 1)),
                 round(map_value_to_percent(jukeboxData.maxRandomBranchChance, 0, 1)),
                 round(map_value_to_percent(jukeboxData.randomBranchChanceDelta,
-                        minRandomBranchChanceDelta, maxRandomBranchChanceDelta))].join(',')
+                        minRandomBranchChanceDelta, maxRandomBranchChanceDelta))).join(',')
         }
 
         if (jukeboxData.disableKeys) {
@@ -984,11 +1006,11 @@ fun calculateNearestNeighborsForQuantum(type:Any?, maxNeighbors:Any?, maxThresho
     );
 
     q1.all_neighbors = mutableListOf<Any?>();
-    for (i = 0; i < maxNeighbors && i < edges.length; i++) {
+    for (i = 0; i < maxNeighbors && i < edges.size; i++) {
         var edge = edges[i];
         q1.all_neighbors.add(edge);
 
-        edge.id = jukeboxData.allEdges.length;
+        edge.id = jukeboxData.allEdges.size;
         jukeboxData.allEdges.add(edge);
     }
 }
@@ -1043,7 +1065,7 @@ fun extractNearestNeighbors(q:Any?, maxThreshold:Any?):List<Any?> {
     return neighbors;
 }
 
-fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Boolean=false) {
+fun seg_distance(seg1:Any?, seg2:Any?, field:Any?, weighted:Boolean=false):Number {
     return if (weighted) {
         weighted_euclidean_distance(seg1[field], seg2[field]);
     } else {
@@ -1074,18 +1096,18 @@ fun calcBranchInfo(type:Any?) {
 fun euclidean_distance(v1:Any?, v2:Any?):Double {
     var sum = 0;
 
-    for (i in 0 until v1.length) {
+    for (i in 0 until v1.size) {
         var delta = v2[i] - v1[i];
         sum += delta * delta;
     }
     return sqrt(sum);
 }
 
-fun weighted_euclidean_distance(v1:Any?, v2:Any?) {
+fun weighted_euclidean_distance(v1:Any?, v2:Any?):Number {
     var sum = 0;
 
     //for (i in 0 until 4) {
-    for (i in 0 until v1.length) {
+    for (i in 0 until v1.size) {
         var delta = v2[i] - v1[i];
         //var weight = 1.0 / ( i + 1.0);
         var weight = 1.0;
@@ -1131,7 +1153,7 @@ fun getQuantumSegment(q:Any?) {
     return q.oseg;
 }
 
-fun isSegment(q:Any?) {
+fun isSegment(q:Any?):Boolean {
     return "timbre" in q;
 }
 
@@ -1170,7 +1192,7 @@ fun normalizeColor() {
     }
 }
 
-fun getSegmentColor(seg:Any?) {
+fun getSegmentColor(seg:Any?):String {
     var results = mutableListOf<Any?>();
     for (i in 0 until 3) {
         var t = seg.timbre[i + 1];
@@ -1217,7 +1239,7 @@ fun deleteEdge(edge:Any?) {
     }
 }
 
-fun keydown(evt:Any?) {
+fun keydown(evt:JQueryKeyEventObject) {
     if (!jQuery("#hero").is(":visible") || jQuery("#controls").is(":visible") || jukeboxData.disableKeys) {
         return;
     }
@@ -1286,11 +1308,11 @@ fun keydown(evt:Any?) {
 
 }
 
-fun isDigit(key:Any?) {
+fun isDigit(key:Int):Boolean {
     return key >= 48 && key <= 57;
 }
 
-fun keyup(evt:Any?) {
+fun keyup(evt:JQueryKeyEventObject) {
     if (evt.which == 17) {
         controlled = false;
     }
@@ -1316,55 +1338,55 @@ fun searchForTrack() {
     }
 }
 
-fun getShareURL(callback:Any?) {
+fun getShareURL(callback:(String)->Unit) {
     var q = document.URL.split('?')[1];
 
-    jQuery.ajax({
-        url: "/api/site/shrink",
-        dataType: "json",
-        type: "POST",
-        data: q == undefined ? "service=jukebox" : "service=jukebox&" + q,
-        success: fun (data) {
-        return callback(data["id"]);
-    },
-        error: fun (xhr, textStatus, error) {
-        console.log("Error: " + error);
-        return "NOT-VALID";
-    }
-    });
+    jQuery.ajaxBuilder(
+        url= "/api/site/shrink",
+        dataType= "json",
+        type= "POST",
+        data= if(q == null) "service=jukebox" else "service=jukebox&" + q,
+        success= fun (data) {
+            return callback(data["id"]);
+        },
+        error= fun (xhr, textStatus, error) {
+            console.log("Error: " + error);
+            return "NOT-VALID";
+        }
+    )
 }
 
 fun checkIfStarred() {
     getShareURL(fun (id) {
-        jQuery.ajax({
-            url: "/api/profile/me",
-            dataType: "json",
-            type: "GET",
-            success: fun (data) {
-            var stars = data["stars"];
-            for (i in 0 until stars.length) {
-                if (stars[i] == id) {
-                    jQuery("#star").text("Unstar");
-                    break;
+        jQuery.ajax(object:JQueryAjaxSettings{}.apply{
+            url= "/api/profile/me"
+            dataType= "json"
+            type= "GET"
+            success= fun (data) {
+                var stars = data["stars"];
+                for (i in 0 until stars.length) {
+                    if (stars[i] == id) {
+                        jQuery("#star").text("Unstar");
+                        break;
+                    }
                 }
             }
-        },
-            error: fun (xhr, textStatus, error) {
-            console.log("Could not retrieve stars: " + error)
-        }
+            error= fun (xhr, textStatus, error) {
+                console.log("Could not retrieve stars: " + error)
+            }
         });
     });
 }
 
 fun init() {
-    document.ondblclick = fun DoubleClick(event) {
+    document.ondblclick = fun (event):Boolean {
         event.preventDefault();
         event.stopPropagation();
         return false;
     };
 
-    jQuery(document).keydown(keydown);
-    jQuery(document).keyup(keyup);
+    jQuery(document).keydown(::keydown);
+    jQuery(document).keyup(::keyup);
 
     paper = Raphael("tiles", W, H);
 
@@ -1394,7 +1416,7 @@ fun init() {
             }
     );
 
-    jQuery("#search").click(searchForTrack);
+    jQuery("#search").click(::searchForTrack);
     jQuery("#search-text").keyup(fun (e) {
         if (e.keyCode == 13) {
             searchForTrack();
@@ -1426,27 +1448,27 @@ fun init() {
     jQuery("#star").click(
             fun () {
                 getShareURL(fun (shortID) {
-                    jQuery.ajax({
-                        url: "/api/profile/stars/" + shortID,
-                        type: jQuery("#star").text() == "Star" ? "PUT" : "DELETE",
-                        headers: {
-                        "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
-                    },
-                        success: fun (data) {
-                        if (jQuery("#star").text() == "Star") {
-                        jQuery("#info").text("Successfully starred!");
-                        jQuery("#star").text("Unstar");
-                    } else {
-                        jQuery("#info").text("Successfully unstarred!");
-                        jQuery("#star").text("Star");
-                    }
-                    },
-                        error: fun (xhr, textStatus, error) {
-                        if (error == "Unauthorized")
-                        jQuery("#info").text("An error occurred while starring: You're not logged in!");
-                        else
-                        jQuery("#info").text("An error occurred while starring: " + error + "!");
-                    }
+                    jQuery.ajax(object:JQueryAjaxSettings{}.apply{
+                        url= "/api/profile/stars/" + shortID
+                        type=  if(jQuery("#star").text() == "Star") "PUT" else "DELETE"
+                        headers= {
+                            "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
+                        }
+                        success= fun (data) {
+                            if (jQuery("#star").text() == "Star") {
+                                jQuery("#info").text("Successfully starred!");
+                                jQuery("#star").text("Unstar");
+                            } else {
+                                jQuery("#info").text("Successfully unstarred!");
+                                jQuery("#star").text("Star");
+                            }
+                        }
+                        error= fun (xhr, textStatus, error) {
+                            if (error == "Unauthorized")
+                            jQuery("#info").text("An error occurred while starring: You're not logged in!");
+                            else
+                            jQuery("#info").text("An error occurred while starring: " + error + "!");
+                        }
                     });
                 });
             }
@@ -1455,7 +1477,8 @@ fun init() {
     jQuery("#short-url").click(
             fun () {
                 getShareURL(fun (id) {
-                    prompt("Copy the URL below and press 'Enter' to automatically close this prompt", window.location.origin + "/api/site/expand/" + id + "/redirect")
+                    window.prompt("Copy the URL below and press 'Enter' to automatically close this prompt",
+                            window.location.origin + "/api/site/expand/" + id + "/redirect")
                 })
             }
     );
@@ -1473,13 +1496,13 @@ fun init() {
     );
 
     jQuery("#controls").attr("visibility", "visible");
-    jQuery("#controls").dialog(
+    jQuery("#controls").dialog(object:DialogOptions{}.apply
             {
-                autoOpen: false,
-                title: "Fine tune your endless song",
-                width: 350,
-                position: [4, 4],
-                resizable: false
+                autoOpen= false
+                title= "Fine tune your endless song"
+                width= 350
+                position= arrayOf(4, 4)
+                resizable= false
             }
     );
 
@@ -1534,77 +1557,77 @@ fun init() {
             }
     );
 
-    jQuery("#threshold-slider").slider({
-        max: 80,
-        min: 2,
-        step: 1,
-        value: 30,
-        change: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.currentThreshold = ui.value;
-            drawVisualization();
+    jQuery("#threshold-slider").slider(object: SliderOptions{}.apply{
+        max= 80
+        min= 2
+        step= 1
+        value= 30
+        change= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.currentThreshold = ui.value;
+                drawVisualization();
+            }
         }
-    },
 
-        slide: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.currentThreshold = ui.value;
+        slide= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.currentThreshold = ui.value;
+            }
         }
-    }
 
-    }
-    );
-
-    jQuery("#probability-slider").slider({
-        max: 100,
-        min: 0,
-        range: true,
-        step: 1,
-        values: [
-        round(defaultMinRandomBranchChance * 100),
-        round(defaultMaxRandomBranchChance * 100)
-        ],
-        change: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
-            jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
-            setTunedURL();
-        }
-    },
-
-        slide: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
-            jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
-        }
-    }
     }
     );
 
-    jQuery("#probability-ramp-slider").slider({
-        max: 100,
-        min: 0,
-        step: 2,
-        value: 30,
-        change: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.randomBranchChanceDelta =
-                    map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
-            setTunedURL();
+    jQuery("#probability-slider").slider(object: SliderOptions{}.apply{
+        max= 100
+        min= 0
+        range= true
+        step= 1
+        values= arrayOf(
+            round(defaultMinRandomBranchChance * 100),
+            round(defaultMaxRandomBranchChance * 100)
+        )
+        change= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
+                jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
+                setTunedURL();
+            }
         }
-    },
 
-        slide: fun (event, ui) {
-        if (event.originalEvent) {
-            jukeboxData.randomBranchChanceDelta =
-                    map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
+        slide= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.minRandomBranchChance = ui.values[0] / 100.;
+                jukeboxData.maxRandomBranchChance = ui.values[1] / 100.;
+            }
         }
-    }
     }
     );
 
-    jQuery("#audio-url").keypress(fun (event) {
-        var keycode = event.keyCode || event.which;
+    jQuery("#probability-ramp-slider").slider(object: SliderOptions{}.apply{
+        max= 100
+        min= 0
+        step= 2
+        value= 30
+        change= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.randomBranchChanceDelta =
+                        map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
+                setTunedURL();
+            }
+        }
+
+        slide= fun (event, ui) {
+            if (event.originalEvent) {
+                jukeboxData.randomBranchChanceDelta =
+                        map_percent_to_range(ui.value, minRandomBranchChanceDelta, maxRandomBranchChanceDelta)
+            }
+        }
+    }
+    );
+
+    jQuery("#audio-url").keypress(fun (event:JQueryKeyEventObject) {
+        var keycode = if(event.keyCode != 0) event.keyCode else event.which
         if (keycode == 13) {
             jukeboxData.audioURL = event.target.value;
             setTunedURL();
@@ -1613,33 +1636,33 @@ fun init() {
     });
 
     jQuery("#audio-upload").change(fun () {
-        jQuery.ajax({
-            url: "/api/audio/upload",
-            type: "POST",
-            data: FormData(jQuery("#audio-upload-form")[0]),
-            processData: false,
-            contentType: false,
-            headers: {
-            "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
-        },
-            xhr: fun () {
-            var xhr = window.XMLHttpRequest();
-            xhr.upload.addEventListener("progress", fun (evt) {
-                if (evt.lengthComputable) {
-                    var percentComplete = evt.loaded / evt.total;
-                    percentComplete = percentComplete * 100;
-                    jQuery("#audio-progress").text(percentComplete + '%');
-                    jQuery("#audio-progress").css("width", percentComplete + '%');
-                }
-            }, false);
-            return xhr;
-        },
-            success: fun (data) {
-            jukeboxData.audioURL = "upl:" + data["id"];
-            setTunedURL();
-            window.location.reload(true);
-        },
-            error: fun (xhr, textStatus, error) {
+        jQuery.ajax(object:JQueryAjaxSettings{}.apply{
+            url= "/api/audio/upload"
+            type= "POST"
+            data= FormData(jQuery("#audio-upload-form").get(0))
+            processData= false
+            contentType= false
+            headers= {
+                "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
+            }
+            xhr= fun () {
+                var xhr = window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", fun (evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        percentComplete = percentComplete * 100;
+                        jQuery("#audio-progress").text(percentComplete + '%');
+                        jQuery("#audio-progress").css("width", percentComplete + '%');
+                    }
+                }, false);
+                return xhr;
+            }
+            success= fun (data) {
+                jukeboxData.audioURL = "upl:" + data["id"];
+                setTunedURL();
+                window.location.reload(true);
+            }
+            error= fun (xhr, textStatus, error) {
             console.log("Error upon attempting to upload: " + error);
         }
         });
@@ -1648,22 +1671,22 @@ fun init() {
     jQuery("#disable-keys").change(
             fun (event) {
                 if (event.originalEvent) {
-                    jukeboxData.disableKeys = jQuery("#disable-keys").is(":checked");
+                    jukeboxData.disableKeys = jQuery("#disable-keys").`is`(":checked")
                     setTunedURL();
                 }
             }
     );
 
-    jQuery("#volume-slider").slider({
-        min: 0,
-        max: 100,
-        value: 50,
-        range: "min",
-        slide: fun(event, ui) {
-        jQuery("#volume").text(ui.value);
-        player.audioGain.gain.value = ui.value / 100;
-        //setVolume(ui.value / 100);
-    }
+    jQuery("#volume-slider").slider(object: SliderOptions{}.apply{
+        min= 0
+        max= 100
+        value= 50
+        range= "min"
+        slide= fun(event, ui) {
+            jQuery("#volume").text(ui.value);
+            player.audioGain.gain.value = ui.value / 100;
+            //setVolume(ui.value / 100);
+        }
     });
 
     jukeboxData.minRandomBranchChance = defaultMinRandomBranchChance;
@@ -1696,36 +1719,31 @@ fun getAudioContext() {
     return context;
 }
 
-fun secondsToTime(secs:Any?) {
-    secs = floor(secs);
+fun secondsToTime(secsIn:Double):String {
+    var secs = floor(secsIn);
     var hours = floor(secs / 3600);
     secs -= hours * 3600;
     var mins = floor(secs / 60);
     secs -= mins * 60;
 
-    if (hours < 10) {
-        hours = '0' + hours;
-    }
-    if (mins < 10) {
-        mins = '0' + mins;
-    }
-    if (secs < 10) {
-        secs = '0' + secs;
-    }
-    return hours + ":" + mins + ":" + secs
+    //these aren't really Strings, but it's fine because they're auto-cast when used anyway
+    val hoursString = if (hours < 10) "0" + hours else hours
+    val minsString = if (mins < 10) "0" + mins else mins
+    val secsString = if (secs < 10) "0" + secs else secs
+    return  "$hoursString:$minsString:$secsString"
 }
 
-fun windowHidden() {
-    return document.webkitHidden;
+fun windowHidden():Boolean {
+    return document.body?.hidden ?: true
 }
 
 fun processParams() {
-    var params = mutableMapOf<String, Any?>();
-    var q = document.URL.split('?')[1];
-    if (q != null) {
-        q = q.split('&');
-        for (i in 0 until q.length) {
-            var pv = q[i].split('=');
+    var params = mutableMapOf<String, String>()
+    var q = URL.toString().split('?')[1]
+    if (q.isNotEmpty()) {
+        val q2 = q.split('&')
+        for (i in 0 until q2.size) {
+            var pv = q2[i].split('=');
             var p = pv[0];
             var v = pv[1];
             params[p] = v;
@@ -1751,31 +1769,31 @@ fun processParams() {
             }
         }
         if ("lb" in params) {
-            if (params["lb"] == '0') {
+            if (params["lb"] == "0") {
                 jukeboxData.addLastEdge = true;
             }
         }
 
         if ("jb" in params) {
-            if (params["jb"] == '1') {
+            if (params["jb"] == "1") {
                 jukeboxData.justBackwards = true;
             }
         }
 
         if ("lg" in params) {
-            if (params["lg"] == '1') {
+            if (params["lg"] == "1") {
                 jukeboxData.justLongBranches = true;
             }
         }
 
         if ("sq" in params) {
-            if (params["sq"] == '0') {
+            if (params["sq"] == "0") {
                 jukeboxData.removeSequentialBranches = true;
             }
         }
 
         if ("nokeys" in params) {
-            if (params["nokeys"] == '1') {
+            if (params["nokeys"] == "1") {
                 jukeboxData.disableKeys = true
             }
         }
@@ -1827,7 +1845,7 @@ fun urldecode(str:Any?) {
     return decodeURIComponent((str + "").replace(/\+/g, "%20"));
 }
 
-fun isTuned(url:Any?) {
+fun isTuned(url:String):Boolean {
     return url.indexOf('&') > 0;
 }
 //TODO: fix social media & analytics stuff later
@@ -1856,9 +1874,9 @@ fun tweetSetup(t:Any?) {
         twttr.widgets.load();
     }
 }
-
+*/
 fun ga_track(page:Any?, action:Any?, id:Any?) {
     _gaq.add(["_trackEvent", page, action, id]);
-}*/
+}
 
-window.onload = init;
+//window.onload = init;
