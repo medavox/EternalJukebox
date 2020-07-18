@@ -1,22 +1,19 @@
 import externaljs.jquery.JQueryStatic
+import org.w3c.xhr.XMLHttpRequest
+import kotlin.math.sqrt
 
-class JRemixer() {
+class JRemixer(context:Any?, jquery:JQueryStatic) {
 
-}
-fun createJRemixer(context:Any?, jquery:JQueryStatic) {
+    fun remixTrackById (id, callback) {
+        jquery.getJSON("api/info/" + id, fun(data) {
+            remixer.remixTrack(data, callback)
+        });
+    }
 
-    var remixer = {
-
-        remixTrackById: fun(id, callback) {
-            jquery.getJSON("api/info/" + id, fun(data) {
-                remixer.remixTrack(data, callback)
-            });
-        },
-
-        remixTrack : fun(track, jukeboxData, callback) {
+    fun remixTrack(track, jukeboxData:jukeboxData, callback) {
 
         fun fetchAudio(url) {
-            var request = new XMLHttpRequest();
+            var request = XMLHttpRequest();
             trace("fetchAudio " + url);
             track.buffer = null;
             request.open("GET", url, true);
@@ -156,10 +153,10 @@ fun createJRemixer(context:Any?, jquery:JQueryStatic) {
             var quanta = track.analysis[quanta_name];
             var segs = track.analysis.segments;
 
-            for (var i = 0; i < quanta.length; i++) {
+            for (i in 0 until quanta.length) {
                 var q = quanta[i];
 
-                for (var j = last; j < segs.length; j++) {
+                for (j in last until segs.length) {
                     var qseg = segs[j];
                     if (qseg.start >= q.start) {
                         q.oseg = qseg;
@@ -197,44 +194,44 @@ fun createJRemixer(context:Any?, jquery:JQueryStatic) {
 
         preprocessTrack(track);
         fetchAudio(jukeboxData.audioURL === null ? "api/audio/jukebox/" + track.info.id : ("api/audio/external?fallbackID=" + track.info.id + "&url=" + encodeURIComponent(jukeboxData.audioURL)));
-    },
+    }
 
-        getPlayer : fun() {
-            var queueTime = 0;
-            var audioGain = context.createGain();
-            var curAudioSource = null;
-            var curQ = null;
-            audioGain.gain.value = 0.5;
-            audioGain.connect(context.destination);
+    fun getPlayer () {
+        var queueTime = 0;
+        var audioGain = context.createGain();
+        var curAudioSource = null;
+        var curQ = null;
+        audioGain.gain.value = 0.5;
+        audioGain.connect(context.destination);
 
-            fun queuePlay(when, q) {
-                // console.log('qp', when, q);
-                //audioGain.gain.value = 1;
-                if (isAudioBuffer(q)) {
-                    var audioSource = context.createBufferSource();
-                    audioSource.buffer = q;
-                    audioSource.connect(audioGain);
-                    audioSource.start(when);
-                    return when;
-                } else if (jquery.isArray(q)) {
-                    for (var i in q) {
-                        when = queuePlay(when, q[i]);
-                    }
-                    return when;
-                } else if (isQuantum(q)) {
-                    var audioSource = context.createBufferSource();
-                    audioSource.buffer = q.track.buffer;
-                    audioSource.connect(audioGain);
-                    audioSource.start(when, q.start, q.duration);
-                    q.audioSource = audioSource;
-                    return when + q.duration;
-                } else {
-                    error("can't play " + q);
-                    return when;
+        fun queuePlay(when, q) {
+            // console.log('qp', when, q);
+            //audioGain.gain.value = 1;
+            if (isAudioBuffer(q)) {
+                var audioSource = context.createBufferSource();
+                audioSource.buffer = q;
+                audioSource.connect(audioGain);
+                audioSource.start(when);
+                return when;
+            } else if (jquery.isArray(q)) {
+                for (var i in q) {
+                    when = queuePlay(when, q[i]);
                 }
+                return when;
+            } else if (isQuantum(q)) {
+                var audioSource = context.createBufferSource();
+                audioSource.buffer = q.track.buffer;
+                audioSource.connect(audioGain);
+                audioSource.start(when, q.start, q.duration);
+                q.audioSource = audioSource;
+                return when + q.duration;
+            } else {
+                error("can't play " + q);
+                return when;
             }
+        }
 
-            fun playQuantum(when, q) {
+        fun playQuantum(when, q) {
             var now = context.currentTime;
             var start = when == 0 ? now : when;
             var next = start + q.duration;
@@ -258,107 +255,104 @@ fun createJRemixer(context:Any?, jquery:JQueryStatic) {
             return next;
         }
 
-            fun error(s) {
-                console.log(s);
+        fun error(s) {
+            console.log(s);
+        }
+
+        var player = {
+            audioGain= audioGain
+
+            fun play(`when`, q) {
+                return playQuantum(`when`, q);
+                //queuePlay(0, q);
             }
 
-            var player = {
-                audioGain: audioGain,
+            fun playNow (q) {
+                queuePlay(0, q);
+            }
 
-                play: fun (when, q) {
-                    return playQuantum(when, q);
-                    //queuePlay(0, q);
-                },
+            fun addCallback (callback) {
+            }
 
-                playNow: fun (q) {
-                    queuePlay(0, q);
-                },
-
-                addCallback: fun (callback) {
-                },
-
-                queue: fun (q) {
-                    var now = context.currentTime;
-                    if (now > queueTime) {
-                        queueTime = now;
-                    }
-                    queueTime = queuePlay(queueTime, q);
-                },
-
-                queueRest: fun (duration) {
-                    queueTime += duration;
-                },
-
-                stop: fun (q) {
-                    if (q === undefined) {
-                        if (curAudioSource) {
-                            curAudioSource.stop(0);
-                            curAudioSource = null;
-                        }
-                        //audioGain.gain.value = 0;
-                        //audioGain.disconnect();
-                    } else {
-                        if ('audioSource' in q) {
-                            if (q.audioSource !== null) {
-                                q.audioSource.stop(0);
-                            }
-                        }
-                    }
-                    curQ = null;
-                },
-
-                curTime: fun () {
-                    return context.currentTime;
+            fun queue (q) {
+                var now = context.currentTime;
+                if (now > queueTime) {
+                    queueTime = now;
                 }
-            };
-            return player;
-        },
+                queueTime = queuePlay(queueTime, q);
+            }
 
-        fetchSound : fun(audioURL, callback) {
-            var request = new XMLHttpRequest();
+            fun queueRest (duration) {
+                queueTime += duration;
+            }
 
-            trace("fetchSound " + audioURL);
-            request.open("GET", audioURL, true);
-            request.responseType = "arraybuffer";
-            this.request = request;
+            fun stop (q) {
+                if (q === undefined) {
+                    if (curAudioSource) {
+                        curAudioSource.stop(0);
+                        curAudioSource = null;
+                    }
+                    //audioGain.gain.value = 0;
+                    //audioGain.disconnect();
+                } else {
+                    if ("audioSource" in q) {
+                        if (q.audioSource !== null) {
+                            q.audioSource.stop(0);
+                        }
+                    }
+                }
+                curQ = null;
+            }
 
-            request.onload = fun() {
-                var buffer = context.createBuffer(request.response, false);
-                callback(true, buffer);
-            };
-
-            request.onerror = fun(e) {
-                callback(false, null);
-            };
-            request.send();
-        }
-    };
-
-    fun isQuantum(a) {
-        return 'start' in a && 'duration' in a;
+            fun curTime () {
+                return context.currentTime;
+            }
+        };
+        return player;
     }
 
-    fun isAudioBuffer(a) {
-        return 'getChannelData' in a;
+    fun fetchSound (audioURL, callback) {
+        var request = XMLHttpRequest();
+
+        trace("fetchSound " + audioURL);
+        request.open("GET", audioURL, true);
+        request.responseType = "arraybuffer";
+        this.request = request;
+
+        request.onload = fun() {
+            var buffer = context.createBuffer(request.response, false);
+            callback(true, buffer);
+        };
+
+        request.onerror = fun(e) {
+            callback(false, null);
+        };
+        request.send();
     }
 
-    fun trace(text) {
-        if (false) {
-            console.log(text);
-        }
-    }
-
-    return remixer;
 }
 
+fun isQuantum(a:List<String>):Boolean {
+    return "start" in a && "duration" in a
+}
+
+fun isAudioBuffer(a:List<String>):Boolean {
+    return "getChannelData" in a
+}
+
+fun trace(text:String) {
+    if (false) {
+        console.log(text);
+    }
+}
 
 fun euclidean_distance(v1:Any?, v2:Any?):Number {
-    var sum = 0;
+    var sum:Double = 0.0
     for (i in 0 until 3) {
         var delta = v2[i] - v1[i];
         sum += delta * delta;
     }
-    return Math.sqrt(sum);
+    return sqrt(sum)
 }
 
 fun timbral_distance(s1:Any?, s2:Any?):Number {
