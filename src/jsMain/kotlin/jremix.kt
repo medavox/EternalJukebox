@@ -1,18 +1,19 @@
 import externaljs.jquery.JQueryStatic
 import org.w3c.xhr.XMLHttpRequest
+import kotlin.math.round
 import kotlin.math.sqrt
 
 class JRemixer(context:Any?, jquery:JQueryStatic) {
 
-    fun remixTrackById (id, callback) {
-        jquery.getJSON("api/info/" + id, fun(data) {
+    fun remixTrackById (id:Any?, callback:Any?) {
+        jquery.getJSON("api/info/" + id, fun(data:Any?) {
             remixer.remixTrack(data, callback)
         });
     }
 
-    fun remixTrack(track, jukeboxData:jukeboxData, callback) {
+    fun remixTrack(track:Any?, jukeboxData:jukeboxData, callback:Any?) {
 
-        fun fetchAudio(url) {
+        fun fetchAudio(url:Any?) {
             var request = XMLHttpRequest();
             trace("fetchAudio " + url);
             track.buffer = null;
@@ -21,47 +22,47 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
             this.request = request;
 
             request.onload = fun() {
-                trace('audio loaded');
+                trace("audio loaded")
                 if (false) {
                     track.buffer = context.createBuffer(request.response, false);
-                    track.status = 'ok';
+                    track.status = "ok"
                     callback(1, track, 100);
                 } else {
                     context.decodeAudioData(request.response,
                             fun(buffer) {      // completed fun
                                 track.buffer = buffer;
-                                track.status = 'ok';
+                                track.status = "ok"
                                 callback(1, track, 100);
                             },
                             fun(e) { // error fun
-                                track.status = 'error: loading audio';
+                                track.status = "error: loading audio"
                                 callback(-1, track, 0);
-                                console.log('audio error', e);
+                                console.log("audio error", e)
                             }
                     );
                 }
             };
 
             request.onerror = fun(e) {
-                trace('error loading loaded');
-                track.status = 'error: loading audio';
+                trace("error loading loaded")
+                track.status = "error: loading audio"
                 callback(-1, track, 0);
             };
 
             request.onprogress = fun(e) {
-                var percent = Math.round(e.loaded * 100  / e.total);
+                var percent = round(e.loaded * 100  / e.total)
                 callback(0, track, percent);
             };
             request.send();
         }
 
-        fun preprocessTrack(track) {
-            trace('preprocessTrack');
-            var types = ['sections', 'bars', 'beats', 'tatums', 'segments'];
+        fun preprocessTrack(track:Any?) {
+            trace("preprocessTrack")
+            val types = arrayOf("sections", "bars", "beats", "tatums", "segments")
 
-            for (var i in types) {
+            for (i in types.indices) {
                 var type = types[i];
-                trace('preprocessTrack ' + type);
+                trace("preprocessTrack " + type)
                 for (var j in track.analysis[type]) {
                     var qlist = track.analysis[type];
 
@@ -84,55 +85,55 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
                 }
             }
 
-            connectQuanta(track, 'sections', 'bars');
-            connectQuanta(track, 'bars', 'beats');
-            connectQuanta(track, 'beats', 'tatums');
-            connectQuanta(track, 'tatums', 'segments');
+            connectQuanta(track, "sections", "bars")
+            connectQuanta(track, "bars", "beats")
+            connectQuanta(track, "beats", "tatums")
+            connectQuanta(track, "tatums", "segments")
 
-            connectFirstOverlappingSegment(track, 'bars');
-            connectFirstOverlappingSegment(track, 'beats');
-            connectFirstOverlappingSegment(track, 'tatums');
+            connectFirstOverlappingSegment(track, "bars")
+            connectFirstOverlappingSegment(track, "beats")
+            connectFirstOverlappingSegment(track, "tatums")
 
-            connectAllOverlappingSegments(track, 'bars');
-            connectAllOverlappingSegments(track, 'beats');
-            connectAllOverlappingSegments(track, 'tatums');
+            connectAllOverlappingSegments(track, "bars")
+            connectAllOverlappingSegments(track, "beats")
+            connectAllOverlappingSegments(track, "tatums")
 
 
             filterSegments(track);
         }
 
-        fun filterSegments(track) {
+        fun filterSegments(track:Any?) {
             var threshold = .3;
-            var fsegs = [];
-            fsegs.push(track.analysis.segments[0]);
-            for (var i = 1; i < track.analysis.segments.length; i++) {
+            var fsegs = mutableListOf<Any?>()
+            fsegs.add(track.analysis.segments[0])
+            for (i in 1 until track.analysis.segments.length) {
                 var seg = track.analysis.segments[i];
                 var last = fsegs[fsegs.length - 1];
                 if (isSimilar(seg, last) && seg.confidence < threshold) {
                     fsegs[fsegs.length -1].duration += seg.duration;
                 } else {
-                    fsegs.push(seg);
+                    fsegs.add(seg)
                 }
             }
             track.analysis.fsegments = fsegs;
         }
 
-        fun isSimilar(seg1, seg2) {
+        fun isSimilar(seg1:Any?, seg2:Any?) {
             var threshold = 1;
             var distance = timbral_distance(seg1, seg2);
             return (distance < threshold);
         }
 
-        fun connectQuanta(track, parent, child) {
+        fun connectQuanta(track:Any?, parent:Any?, child:Any?) {
             var last = 0;
             var qparents = track.analysis[parent];
             var qchildren = track.analysis[child];
 
-            for (var i in qparents) {
+            for (i in qparents) {
                 var qparent = qparents[i];
                 qparent.children = [];
 
-                for (var j = last; j < qchildren.length; j++) {
+                for (j in last until qchildren.length) {
                     var qchild = qchildren[j];
                     if (qchild.start >= qparent.start
                             && qchild.start < qparent.start + qparent.duration) {
@@ -148,7 +149,7 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
         }
 
         // connects a quanta with the first overlapping segment
-        fun connectFirstOverlappingSegment(track, quanta_name) {
+        fun connectFirstOverlappingSegment(track:Any?, quanta_name:Any?) {
             var last = 0;
             var quanta = track.analysis[quanta_name];
             var segs = track.analysis.segments;
@@ -167,16 +168,16 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
             }
         }
 
-        fun connectAllOverlappingSegments(track, quanta_name) {
+        fun connectAllOverlappingSegments(track:Any?, quanta_name:Any?) {
             var last = 0;
             var quanta = track.analysis[quanta_name];
             var segs = track.analysis.segments;
 
-            for (var i = 0; i < quanta.length; i++) {
+            for (i in 0 until quanta.length) {
                 var q = quanta[i];
                 q.overlappingSegments = [];
 
-                for (var j = last; j < segs.length; j++) {
+                for (j in last until segs.length) {
                     var qseg = segs[j];
                     // seg starts before quantum so no
                     if ((qseg.start + qseg.duration) < q.start) {
@@ -197,43 +198,43 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
     }
 
     fun getPlayer () {
-        var queueTime = 0;
+        var queueTime:Number = 0;
         var audioGain = context.createGain();
         var curAudioSource = null;
         var curQ = null;
         audioGain.gain.value = 0.5;
         audioGain.connect(context.destination);
 
-        fun queuePlay(when, q) {
+        fun queuePlay(`when`:Any?, q:Any?) {
             // console.log('qp', when, q);
             //audioGain.gain.value = 1;
             if (isAudioBuffer(q)) {
                 var audioSource = context.createBufferSource();
                 audioSource.buffer = q;
                 audioSource.connect(audioGain);
-                audioSource.start(when);
-                return when;
+                audioSource.start(`when`);
+                return `when`
             } else if (jquery.isArray(q)) {
-                for (var i in q) {
-                    when = queuePlay(when, q[i]);
+                for (i in q) {
+                    `when` = queuePlay(`when`, q[i]);
                 }
-                return when;
+                return `when`
             } else if (isQuantum(q)) {
                 var audioSource = context.createBufferSource();
                 audioSource.buffer = q.track.buffer;
                 audioSource.connect(audioGain);
-                audioSource.start(when, q.start, q.duration);
+                audioSource.start(`when`, q.start, q.duration);
                 q.audioSource = audioSource;
-                return when + q.duration;
+                return `when` + q.duration
             } else {
                 error("can't play " + q);
-                return when;
+                return `when`
             }
         }
 
-        fun playQuantum(when, q) {
+        fun playQuantum(`when`:Any?, q:Any?) {
             var now = context.currentTime;
-            var start = when == 0 ? now : when;
+            var start = if(`when` == 0) now else `when`
             var next = start + q.duration;
 
             if (curQ && curQ.track === q.track && curQ.which + 1 == q.which) {
@@ -255,26 +256,26 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
             return next;
         }
 
-        fun error(s) {
+        fun error(s:Any?) {
             console.log(s);
         }
 
         var player = {
             audioGain= audioGain
 
-            fun play(`when`, q) {
+            fun play(`when`:Any?, q:Any?) {
                 return playQuantum(`when`, q);
                 //queuePlay(0, q);
             }
 
-            fun playNow (q) {
+            fun playNow (q:Any?) {
                 queuePlay(0, q);
             }
 
-            fun addCallback (callback) {
+            fun addCallback (callback:Any?) {
             }
 
-            fun queue (q) {
+            fun queue (q:Any?) {
                 var now = context.currentTime;
                 if (now > queueTime) {
                     queueTime = now;
@@ -282,11 +283,11 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
                 queueTime = queuePlay(queueTime, q);
             }
 
-            fun queueRest (duration) {
+            fun queueRest (duration:Number) {
                 queueTime += duration;
             }
 
-            fun stop (q) {
+            fun stop (q:Any?) {
                 if (q === undefined) {
                     if (curAudioSource) {
                         curAudioSource.stop(0);
@@ -311,7 +312,7 @@ class JRemixer(context:Any?, jquery:JQueryStatic) {
         return player;
     }
 
-    fun fetchSound (audioURL, callback) {
+    fun fetchSound (audioURL:Any?, callback:Any?) {
         var request = XMLHttpRequest();
 
         trace("fetchSound " + audioURL);
@@ -360,50 +361,46 @@ fun timbral_distance(s1:Any?, s2:Any?):Number {
 }
 
 
-fun clusterSegments(track:Any?, numClusters:Any?, fieldName:Any?, vecName:Any?) {
-    var vname = vecName || 'timbre';
-    var fname = fieldName || 'cluster';
+fun clusterSegments(track:Any?, numClusters:Int, fieldName:Any?, vecName:Any?) {
+    var vname = vecName || "timbre"
+    var fname = fieldName || "cluster"
     var maxLoops = 1000;
 
-    fun zeroArray(size) {
-        var arry = [];
-        for (var i = 0; i < size; i++) {
-            arry.push(0);
-        }
-        return arry;
+    fun zeroArray(size:Int):Array<Number> {
+        return Array<Number>(size){0}
     }
 
     fun reportClusteringStats() {
         var counts = zeroArray(numClusters);
-        for (var i = 0; i < track.analysis.segments.length; i++) {
+        for (i in 0 until track.analysis.segments.length) {
             var cluster = track.analysis.segments[i][fname];
             counts[cluster]++;
         }
         //console.log('clustering stats');
-        for (var i = 0; i < counts.length; i++) {
+        for (i in 0 until counts.size) {
             //console.log('clus', i, counts[i]);
         }
     }
 
-    fun sumArray(v1, v2) {
-        for (var i = 0; i < v1.length; i++) {
+    fun sumArray(v1:Array<Any?>, v2:Array<Any?>) {
+        for (i in 0 until v1.size) {
             v1[i] += v2[i];
         }
         return v1;
     }
 
-    fun divArray(v1, scalar) {
-        for (var i = 0; i < v1.length; i++) {
+    fun divArray(v1:Array<Number>, scalar:Number) {
+        for (i in 0 until v1.size) {
             v1[i] /= scalar
         }
         return v1;
     }
-    fun getCentroid(cluster) {
+    fun getCentroid(cluster:Any?) {
         var count = 0;
         var segs = track.analysis.segments;
         var vsum = zeroArray(segs[0][vname].length);
 
-        for (var i = 0; i < segs.length; i++) {
+        for (i in 0 until segs.length) {
             if (segs[i][fname] === cluster) {
                 count++;
                 vsum = sumArray(vsum, segs[i][vname]);
@@ -414,11 +411,11 @@ fun clusterSegments(track:Any?, numClusters:Any?, fieldName:Any?, vecName:Any?) 
         return vsum;
     }
 
-    fun findNearestCluster(clusters, seg) {
+    fun findNearestCluster(clusters:Array<Any?>, seg:Any?) {
         var shortestDistance = Number.MAX_VALUE;
         var bestCluster = -1;
 
-        for (var i = 0; i < clusters.length; i++) {
+        for (i in 0 until clusters.size) {
             var distance = euclidean_distance(clusters[i], seg[vname]);
             if (distance < shortestDistance) {
                 shortestDistance = distance;
@@ -430,7 +427,7 @@ fun clusterSegments(track:Any?, numClusters:Any?, fieldName:Any?, vecName:Any?) 
 
     // kmeans clusterer
     // use random initial assignments
-    for (var i = 0; i < track.analysis.segments.length; i++) {
+    for (i in 0 until track.analysis.segments.length) {
         track.analysis.segments[i][fname] = Math.floor(Math.random() * numClusters);
     }
 
@@ -439,12 +436,12 @@ fun clusterSegments(track:Any?, numClusters:Any?, fieldName:Any?, vecName:Any?) 
     while (maxLoops-- > 0) {
         // calculate cluster centroids
         var centroids = [];
-        for (var i = 0; i < numClusters; i++) {
+        for (i in 0 until numClusters) {
             centroids[i] = getCentroid(i);
         }
         // reassign segs to clusters
         var switches = 0;
-        for (var i = 0; i < track.analysis.segments.length; i++) {
+        for (i in 0 until track.analysis.segments.length) {
             var seg = track.analysis.segments[i];
             var oldCluster = seg[fname];
             var newCluster = findNearestCluster(centroids, seg);
