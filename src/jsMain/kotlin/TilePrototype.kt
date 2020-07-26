@@ -1,36 +1,31 @@
 import externaljs.*
+import externaljs.jquery.jQuery
 
-class TilePrototype {
-
-    constructor(which:Any?, q:Any?, height:Any?, width:Any?) {
-        var padding = 0;
-        this.which = which;
-        this.width = width;
-        this.height = height;
-        this.branchColor = getBranchColor(q);
-        this.quantumColor = getQuantumColor(q);
-        this.normalColor = this.quantumColor;
-        this.isPlaying = false;
-        this.isScaled = false;
-        this.playCount = 0;
-
+class TilePrototype(var which:Any?, q:Any?, var height:Number, var width:Number) {
+    var padding = 0
+    var branchColor = getBranchColor(q)
+    var quantumColor = getQuantumColor(q)
+    var normalColor = "#5f9"
+    var isPlaying = false
+    var isScaled = false
+    var playCount = 0
+    init {
         this.rect = paper.rect(0, 0, this.width, this.height);
         this.rect.attr("stroke", this.normalColor);
         this.rect.attr("stroke-width", 0);
         this.q = q;
         q.tile = this;
         this.normal();
-    }
-    init {
+
         this.rect.mouseover(fun (event) {
             this.playStyle(false);
             if (debugMode) {
                 if (that.q.which > jukeboxData.lastBranchPoint) {
-                    $("#beats").text(this.q.which + ' " + that.q.reach + "*');
+                    jQuery("#beats").text(this.q.which + " " + that.q.reach + "*");
                 } else {
                     var qlength = track.analysis.beats.length;
                     var distanceToEnd = qlength - this.q.which;
-                    $("#beats").text(this.q.which + ' ' + this.q.reach
+                    jQuery("#beats").text(this.q.which + ' ' + this.q.reach
                             + ' ' + Math.floor((this.q.reach - distanceToEnd) * 100 / qlength));
                 }
             }
@@ -53,7 +48,7 @@ class TilePrototype {
             }
         });
     }
-    var normalColor = "#5f9"
+
 
     fun move (x:Any?, y:Any?) {
         this.rect.attr({x: x, y: y});
