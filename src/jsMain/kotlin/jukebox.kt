@@ -4,17 +4,21 @@ import externaljs.jquery.JQueryUI.DialogOptions
 import externaljs.jquery.JQueryUI.SliderOptions
 import externaljs.jquery.JQueryUI.SliderUIParams
 import externaljs.raphael.global.Raphael
+import externaljs.typescript.AudioContext
+import externaljs.typescript.BaseAudioContext
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.url.URL
 import org.w3c.xhr.FormData
+import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.*
+import kotlin.js.Date
 import kotlin.math.round
 
 // This code will make you cry. It was written in a mad
 // dash during Music Hack Day Boston 2012, and has
 // quite a bit of hackage of the bad kind in it.
 
-var remixer:Any? = null
+lateinit var remixer:JRemixer
 var player:Any? = null
 var driver:Any? = null
 var track:Any? = null
@@ -47,7 +51,7 @@ var curGrowFactor = 1;
 
 
 
-internal class jukeboxData { companion object {
+class jukeboxData { companion object {
     var infiniteMode = true      // if true, allow branching
     var maxBranches = 4        // max branches allowed per beat
     var maxBranchThreshold = 80 // max allowed distance threshold
@@ -392,7 +396,7 @@ fun drawVisualization() {
 
 fun gotTheAnalysis(profile:Any?) {
     info("Loading track ...");
-    remixer.remixTrack(profile, jukeboxData, fun (state, t, percent) {
+    remixer.remixTrack(profile, fun (state:Int, t:Any?, percent:Float) {
         track = t;
         if (isNaN(percent)) {
             percent = 0;
@@ -440,12 +444,12 @@ fun listSongAsAnchor(r:Any?):JQuery? {
     return item;
 }
 
-fun listTracks(active:Any?, tracks:Any?) {
+fun listTracks(active:Any?, tracks:List<Any?>) {
     jQuery("#song-div").show();
     jQuery("#song-list").empty();
     jQuery(".sel-list").removeClass("activated");
     jQuery(active).addClass("activated");
-    for (i in 0 until tracks.length) {
+    for (i in 0 until tracks.size) {
         var s = tracks[i];
         var item = listSong(s);
         if (item != null) {
@@ -476,37 +480,40 @@ fun noCache() {
 }
 
 fun fetchAnalysis(id:Any?) {
-    var url = "/api/analysis/analyse/" + id;
+    var urlin = "/api/analysis/analyse/" + id;
     info("Fetching the analysis");
 
-    jQuery.ajax(object:JQueryAjaxSettings{}.apply{
-        url= url
-        dataType= "json"
-        type= "GET"
-        crossDomain= true
-        success= fun (data) {
+    jQuery.ajax(object:JQueryAjaxSettings{
+        override val error = fun(jqXHR: JQueryXHR, textStatus: String, errorThrown: String) {
+            info("Sorry, can't find info for that track: " + errorThrown)
+        }
+        override val success = fun (data: Any, textStatus: String, jqXHR: JQueryXHR) {
             gotTheAnalysis(data);
         }
-        error= fun(xhr, textStatus, error) {
-            info("Sorry, can't find info for that track: " + error)
-        }
-    });
-
-    jQuery.ajax(object:JQueryAjaxSettings{}.apply{
-        url= "/api/audio/jukebox/" + id + "/location"
+    }.apply{
+        url= urlin
         dataType= "json"
         type= "GET"
         crossDomain= true
-        success= fun (data) {
+        error
+    });
+
+    jQuery.ajax(object:JQueryAjaxSettings{
+        override val error = fun(jqXHR: JQueryXHR, textStatus: String, errorThrown: String){
+            info("Sorry, can't find info for that track: " + errorThrown)
+        }
+        override val success = fun(data: Any, textStatus: String, jqXHR: JQueryXHR) {
             if(data["url"] == undefined) {
                 jQuery("#og-audio-source").remove();
             } else {
                 jukeboxData.ogAudioURL = data["url"];
             }
         }
-        error= fun(xhr, textStatus, error) {
-            info("Sorry, can't find info for that track: " + error)
-        }
+    }.apply{
+        url= "/api/audio/jukebox/" + id + "/location"
+        dataType= "json"
+        type= "GET"
+        crossDomain= true
     });
 }
 
@@ -616,7 +623,7 @@ fun getAllDeletedEdgeIDs():List<Any> {
     return results;
 }
 
-fun getDeletedEdgeString() {
+fun getDeletedEdgeString():String {
     var ids = getAllDeletedEdgeIDs();
     if (ids.size > 0) {
         return "&d=" + ids.join(',');
@@ -723,8 +730,8 @@ fun setTunedURL() {
     }
 }
 
-fun now() {
-    return Date().getTime();
+fun now():Number {
+    return Date().getTime()
 }
 
 
@@ -1166,7 +1173,7 @@ fun getBranchColor(q:Any?) {
     }
 }
 
-fun createNewTile(which:Any?, q:Any?, height:Any?, width:Any?):TilePrototype = return TilePrototype(which, q, height, width)
+fun createNewTile(which:Any?, q:Any?, height:Any?, width:Any?):TilePrototype = TilePrototype(which, q, height, width)
 
 fun createTilePanel(which:Any?) {
     removeAllTiles();
@@ -1646,7 +1653,7 @@ fun init() {
                 "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
             }
             xhr= fun () {
-                var xhr = window.XMLHttpRequest();
+                var xhr = XMLHttpRequest();
                 xhr.upload.addEventListener("progress", fun (evt) {
                     if (evt.lengthComputable) {
                         var percentComplete = evt.loaded / evt.total;
@@ -1702,21 +1709,15 @@ fun init() {
         hideAll();
 
     } else {
-        remixer = createJRemixer(context, jQuery);
+        remixer = JRemixer(context, jQuery)
         player = remixer.getPlayer();
         processParams();
         checkIfStarred();
     }
 }
 
-fun getAudioContext() {
-    var context = null;
-    if (typeof AudioContext !== "undefined") {
-        context = AudioContext();
-    } else if (typeof webkitAudioContext !== "undefined") {
-        context = webkitAudioContext();
-    }
-    return context;
+fun getAudioContext():AudioContext? {
+    return AudioContext.prototype
 }
 
 fun secondsToTime(secsIn:Double):String {
@@ -1849,7 +1850,7 @@ fun isTuned(url:String):Boolean {
     return url.indexOf('&') > 0;
 }
 //TODO: fix social media & analytics stuff later
-/*
+
 fun tweetSetup(t:Any?) {
     jQuery(".twitter-share-button").remove();
     var tweet = jQuery("<a>")
@@ -1874,9 +1875,9 @@ fun tweetSetup(t:Any?) {
         twttr.widgets.load();
     }
 }
-*/
+
 fun ga_track(page:Any?, action:Any?, id:Any?) {
-    _gaq.add(["_trackEvent", page, action, id]);
+    //_gaq.add(["_trackEvent", page, action, id]);
 }
 
 //window.onload = init;
