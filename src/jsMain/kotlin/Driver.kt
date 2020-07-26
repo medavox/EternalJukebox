@@ -1,4 +1,7 @@
 import externaljs.*
+import externaljs.jquery.jQuery
+import kotlin.browser.window
+
 class Driver(player:Any?) {
     var curTile = null;
     var curOp = null;
@@ -10,9 +13,11 @@ class Driver(player:Any?) {
     var lateCounter = 0;
     var lateLimit = 4;
 
-    var beatDiv = $("#beats");
+    var beatDiv = jQuery("#beats")
     // var playcountDiv = $("#playcount");
-    var timeDiv = $("#time");
+    var timeDiv = jQuery("#time")
+
+    var startTime = 0
 
     fun next() {
         if (curTile == null || curTile == undefined) {
@@ -88,7 +93,7 @@ class Driver(player:Any?) {
      * us to the least played tile in the future (we look
      * at lookAhead beats into the future
      */
-    fun findLeastPlayedNeighbor(seed:Any?, lookAhead:Any?) {
+    fun findLeastPlayedNeighbor(seed:Any?, lookAhead:Any?):Array<Any?> {
         var nextTiles = mutableListOf<Any?>();
 
         if (seed.q.which != jukeboxData.lastBranchPoint) {
@@ -110,7 +115,7 @@ class Driver(player:Any?) {
                     minTile = tile;
                 }
             });
-            return [minTile, minTile.playCount];
+            return arrayOf(minTile, minTile.playCount)
         } else {
             var minTile = null;
             nextTiles.forEach(fun (tile) {
@@ -134,7 +139,7 @@ class Driver(player:Any?) {
         }
     }
 
-    fun shouldRandomBranch(q:Any?) {
+    fun shouldRandomBranch(q:Any?):Boolean {
         if (jukeboxData.infiniteMode) {
             if (q.which == jukeboxData.lastBranchPoint) {
                 return true;
@@ -166,7 +171,6 @@ class Driver(player:Any?) {
          */
     }
 
-
     fun process() {
         if (curTile !== null && curTile !== undefined) {
             curTile.normal();
@@ -188,7 +192,7 @@ class Driver(player:Any?) {
                     lateCounter++;
                     if (lateCounter++ > lateLimit && windowHidden()) {
                         info("Sorry, can't play music properly in the background");
-                        interface.stop();
+                        `interface`.stop();
                         return;
                     }
                 } else {
@@ -203,7 +207,7 @@ class Driver(player:Any?) {
                 curTile.playCount += 1;
 
                 var delta = nextTime - ctime;
-                setTimeout(fun () {
+                window.setTimeout(fun () {
                     process();
                 }, 1000 * delta - 10);
 
@@ -230,10 +234,7 @@ class Driver(player:Any?) {
         curGrowFactor = 1;
         redrawTiles();
     }
-
-    var startTime = 0;
-    return {
-        start: fun () {
+        fun start() {
         jukeboxData.beatsPlayed = 0;
         nextTime = 0;
         bounceSeed = null;
@@ -247,9 +248,9 @@ class Driver(player:Any?) {
             info("");
         resetPlayCounts();
         process();
-    },
+    }
 
-        stop: fun () {
+    fun stop() {
         var delta = now() - startTime;
         $("#go").text("Play");
         if (curTile) {
@@ -260,26 +261,17 @@ class Driver(player:Any?) {
         bounceSeed = null;
         incr = 1;
         player.stop();
-    },
+    }
 
-        isRunning: fun () {
-        return curOp !== null;
-    },
+    fun isRunning():Boolean {
+        return curOp != null;
+    }
 
-        getIncr: fun () {
-        return incr;
-    },
-
-        getCurTile: fun () {
+    fun getCurTile ():Any? {
         return curTile;
-    },
+    }
 
-        setIncr: fun (inc) {
-        incr = inc;
-    },
-
-        setNextTile: fun (tile) {
+    fun setNextTile (tile) {
         nextTile = tile;
     }
-    };
 }
